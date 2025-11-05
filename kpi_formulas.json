@@ -75,6 +75,10 @@
     "formula": "SAFE_DIV(df['N.Thp.DL.Samp.Index10'].sum() + df['N.Thp.DL.Samp.Index11'].sum(), df['N.Thp.DL.Samp.Index0'].sum() + df['N.Thp.DL.Samp.Index1'].sum() + df['N.Thp.DL.Samp.Index2'].sum() + df['N.Thp.DL.Samp.Index3'].sum() + df['N.Thp.DL.Samp.Index4'].sum() + df['N.Thp.DL.Samp.Index5'].sum() + df['N.Thp.DL.Samp.Index6'].sum() + df['N.Thp.DL.Samp.Index7'].sum() + df['N.Thp.DL.Samp.Index8'].sum() + df['N.Thp.DL.Samp.Index9'].sum() + df['N.Thp.DL.Samp.Index10'].sum() + df['N.Thp.DL.Samp.Index11'].sum() + df['N.Thp.DL.Samp.Index12'].sum() + df['N.Thp.DL.Samp.Index13'].sum() + df['N.Thp.DL.Samp.Index14'].sum(), multiplier=100)",
     "chart_type": "line"
   },
+  "DL Data Rate distribution": {
+    "formula": "{\"Below 50 Mbps\": SAFE_DIV(df['N.Thp.DL.Samp.Index0'].sum() + df['N.Thp.DL.Samp.Index1'].sum() + df['N.Thp.DL.Samp.Index2'].sum() + df['N.Thp.DL.Samp.Index3'].sum() + df['N.Thp.DL.Samp.Index4'].sum() + df['N.Thp.DL.Samp.Index5'].sum() + df['N.Thp.DL.Samp.Index6'].sum() + df['N.Thp.DL.Samp.Index7'].sum() + df['N.Thp.DL.Samp.Index8'].sum() + df['N.Thp.DL.Samp.Index9'].sum(), df['N.Thp.DL.Samp.Index0'].sum() + df['N.Thp.DL.Samp.Index1'].sum() + df['N.Thp.DL.Samp.Index2'].sum() + df['N.Thp.DL.Samp.Index3'].sum() + df['N.Thp.DL.Samp.Index4'].sum() + df['N.Thp.DL.Samp.Index5'].sum() + df['N.Thp.DL.Samp.Index6'].sum() + df['N.Thp.DL.Samp.Index7'].sum() + df['N.Thp.DL.Samp.Index8'].sum() + df['N.Thp.DL.Samp.Index9'].sum() + df['N.Thp.DL.Samp.Index10'].sum() + df['N.Thp.DL.Samp.Index11'].sum() + df['N.Thp.DL.Samp.Index12'].sum() + df['N.Thp.DL.Samp.Index13'].sum() + df['N.Thp.DL.Samp.Index14'].sum(), multiplier=100), \"50-200 Mbps\": SAFE_DIV(df['N.Thp.DL.Samp.Index10'].sum() + df['N.Thp.DL.Samp.Index11'].sum(), df['N.Thp.DL.Samp.Index0'].sum() + df['N.Thp.DL.Samp.Index1'].sum() + df['N.Thp.DL.Samp.Index2'].sum() + df['N.Thp.DL.Samp.Index3'].sum() + df['N.Thp.DL.Samp.Index4'].sum() + df['N.Thp.DL.Samp.Index5'].sum() + df['N.Thp.DL.Samp.Index6'].sum() + df['N.Thp.DL.Samp.Index7'].sum() + df['N.Thp.DL.Samp.Index8'].sum() + df['N.Thp.DL.Samp.Index9'].sum() + df['N.Thp.DL.Samp.Index10'].sum() + df['N.Thp.DL.Samp.Index11'].sum() + df['N.Thp.DL.Samp.Index12'].sum() + df['N.Thp.DL.Samp.Index13'].sum() + df['N.Thp.DL.Samp.Index14'].sum(), multiplier=100), \"Above 200 Mbps\": SAFE_DIV(df['N.Thp.DL.Samp.Index12'].sum() + df['N.Thp.DL.Samp.Index13'].sum() + df['N.Thp.DL.Samp.Index14'].sum(), df['N.Thp.DL.Samp.Index0'].sum() + df['N.Thp.DL.Samp.Index1'].sum() + df['N.Thp.DL.Samp.Index2'].sum() + df['N.Thp.DL.Samp.Index3'].sum() + df['N.Thp.DL.Samp.Index4'].sum() + df['N.Thp.DL.Samp.Index5'].sum() + df['N.Thp.DL.Samp.Index6'].sum() + df['N.Thp.DL.Samp.Index7'].sum() + df['N.Thp.DL.Samp.Index8'].sum() + df['N.Thp.DL.Samp.Index9'].sum() + df['N.Thp.DL.Samp.Index10'].sum() + df['N.Thp.DL.Samp.Index11'].sum() + df['N.Thp.DL.Samp.Index12'].sum() + df['N.Thp.DL.Samp.Index13'].sum() + df['N.Thp.DL.Samp.Index14'].sum(), multiplier=100)}",
+    "chart_type": "stacked_bar"
+  },
   "DL IBLER (%)": {
     "formula": "SAFE_DIV(df['N.DL.SCH.QPSK.ErrTB.Ibler'].sum() + df['N.DL.SCH.16QAM.ErrTB.Ibler'].sum() + df['N.DL.SCH.64QAM.ErrTB.Ibler'].sum() + df['N.DL.SCH.256QAM.ErrTB.Ibler'].sum(), df['N.DL.SCH.QPSK.TB'].sum() + df['N.DL.SCH.16QAM.TB'].sum() + df['N.DL.SCH.64QAM.TB'].sum() + df['N.DL.SCH.256QAM.TB'].sum(), multiplier=100)",
     "chart_type": "line"
@@ -125,7 +129,7 @@
   },
   "DL Volume (GB)": {
     "formula": "df['N.ThpVol.DL(kbit)'].sum() / 1_000_000",
-    "chart_type": "line"
+    "chart_type": "area"
   },
   "Downlink DCI allocation success rate": {
     "formula": "SAFE_DIV(df['N.CCE.DL.AggLvl1Num'].sum() + df['N.CCE.DL.AggLvl2Num'].sum() + df['N.CCE.DL.AggLvl4Num'].sum() + df['N.CCE.DL.AggLvl8Num'].sum() + df['N.CCE.DL.AggLvl16Num'].sum(), df['N.CCE.DL.AllocReq.Num'].sum(), multiplier=100)",
@@ -361,7 +365,7 @@
   },
   "UL Volume (GB)": {
     "formula": "df['N.ThpVol.UL(kbit)'].sum() / 1_000_000",
-    "chart_type": "line"
+    "chart_type": "area"
   },
   "Uplink DCI allocation success rate": {
     "formula": "SAFE_DIV(df['N.CCE.UL.AggLvl1Num'].sum() + df['N.CCE.UL.AggLvl2Num'].sum() + df['N.CCE.UL.AggLvl4Num'].sum() + df['N.CCE.UL.AggLvl8Num'].sum() + df['N.CCE.UL.AggLvl16Num'].sum(), df['N.CCE.UL.AllocReq.Num'].sum(), multiplier=100)",

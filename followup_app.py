@@ -3,9 +3,11 @@ import json
 import os
 import re
 import textwrap
+import threading
 import tkinter as tk
 from datetime import datetime
 from itertools import islice
+from queue import Empty, Queue
 from tkinter import filedialog, messagebox, ttk
 
 import matplotlib.dates as mdates
@@ -64,6 +66,10 @@ class FollowUpApp:
         self.csv_paths = []
         self.tasklines = []
         self.df: pd.DataFrame | None = None
+        self.progress_queue: Queue | None = None
+        self._worker_thread: threading.Thread | None = None
+        self._is_generating = False
+        self._tasklines_snapshot: list[tuple[pd.Timestamp, str]] = []
         self.build_interface()
 
     def validate_date_entry(self, event):
@@ -286,13 +292,50 @@ class FollowUpApp:
 
         return pattern.sub(repl, formula)
 
-    def _evaluate_formula(self, df_filt: pd.DataFrame, info: dict, kpi_name: str) -> pd.Series:
+    def _normalize_formula_output(self, value, kpi_name: str) -> pd.Series | None:
+        if isinstance(value, pd.Series):
+            numeric = pd.to_numeric(value, errors="coerce")
+            numeric = numeric.dropna()
+            return numeric if not numeric.empty else None
+
+        if isinstance(value, pd.DataFrame):
+            numeric_df = value.select_dtypes(include=[np.number])
+            if numeric_df.empty:
+                return None
+            collapsed = numeric_df.sum(axis=0)
+            collapsed = pd.to_numeric(collapsed, errors="coerce").dropna()
+            return collapsed if not collapsed.empty else None
+
+        if isinstance(value, dict):
+            series = pd.Series(value, dtype="float64")
+            series = pd.to_numeric(series, errors="coerce").dropna()
+            return series if not series.empty else None
+
+        if isinstance(value, (list, tuple, np.ndarray)):
+            if len(value) == 0:
+                return None
+            series = pd.Series(value, dtype="float64")
+            series.index = [f"{kpi_name} {idx}" for idx in range(1, len(series) + 1)]
+            series = pd.to_numeric(series, errors="coerce").dropna()
+            return series if not series.empty else None
+
+        try:
+            numeric_value = float(value)
+        except (TypeError, ValueError):
+            return None
+
+        if not np.isfinite(numeric_value):
+            return None
+
+        return pd.Series({kpi_name: numeric_value}, dtype="float64")
+
+    def _evaluate_formula(self, df_filt: pd.DataFrame, info: dict, kpi_name: str) -> pd.DataFrame:
         if "DATETIME" not in df_filt.columns:
             raise ValueError("Coluna DATETIME não encontrada no conjunto de dados filtrado.")
 
         grouped = df_filt.groupby("DATETIME", sort=True)
         if grouped.ngroups == 0:
-            return pd.Series(dtype="float64")
+            return pd.DataFrame()
 
         formula = self._replace_source_refs(info["formula"])
 
@@ -306,7 +349,8 @@ class FollowUpApp:
             "SAFE_DIV": safe_div,
         }
 
-        results: dict[pd.Timestamp, float] = {}
+        rows: list[pd.Series] = []
+        index_values: list[pd.Timestamp] = []
         for timestamp, group in grouped:
             local_context = {"df": group}
             try:
@@ -316,22 +360,25 @@ class FollowUpApp:
                     f"Erro na fórmula do KPI '{kpi_name}': {exc}"
                 ) from exc
 
-            if isinstance(value, pd.DataFrame):
-                value = value.select_dtypes(include=[np.number]).mean().mean()
-            elif isinstance(value, pd.Series):
-                if not value.empty:
-                    value = value.astype(float).mean()
-                else:
-                    value = np.nan
-            elif isinstance(value, (list, tuple, np.ndarray)):
-                value = float(np.mean(value)) if len(value) else np.nan
-
-            if pd.isna(value):
+            series = self._normalize_formula_output(value, kpi_name)
+            if series is None:
                 continue
 
-            results[pd.to_datetime(timestamp)] = float(value)
+            rows.append(series)
+            index_values.append(pd.to_datetime(timestamp))
 
-        return pd.Series(results).sort_index()
+        if not rows:
+            return pd.DataFrame()
+
+        df_result = pd.DataFrame(rows, index=index_values)
+        df_result = df_result.sort_index()
+        df_result = df_result.replace([np.inf, -np.inf], np.nan)
+        df_result = df_result.dropna(how="all")
+        if df_result.empty:
+            return df_result
+
+        df_result = df_result.astype(np.float32)
+        return df_result
 
     @staticmethod
     def _chunked(iterable, size):
@@ -399,7 +446,7 @@ class FollowUpApp:
         tasklines = []
         for idx, (ts, label) in enumerate(self.tasklines, start=1):
             ts_fmt = ts.strftime("%Y-%m-%d %H:%M")
-            tasklines.append(f"Task Line {idx}: {label} ({ts_fmt})")
+            tasklines.append(f"{idx}. {label} ({ts_fmt})")
 
         report_name_entry = self.kpi_title_entry.get().strip()
         report_name = (
@@ -413,7 +460,7 @@ class FollowUpApp:
             "filters": filters_summary,
             "date_range": date_range,
             "hours": hour_summary,
-            "tasklines": tasklines or ["All"],
+            "tasklines": tasklines,
             "total_registros": len(df_filt),
         }
 
@@ -467,9 +514,9 @@ class FollowUpApp:
         )
 
         box = FancyBboxPatch(
-            (0.08, 0.04),
+            (0.08, 0.07),
             0.34,
-            0.3,
+            0.26,
             boxstyle="round,pad=0.08",
             linewidth=1.4,
             edgecolor="#c3002f",
@@ -494,7 +541,7 @@ class FollowUpApp:
 
         if metadata["tasklines"]:
             summary_lines.append("Task Lines:")
-            summary_lines.extend(f"  • {line}" for line in metadata["tasklines"])
+            summary_lines.extend(f"  {line}" for line in metadata["tasklines"])
 
         ax.text(
             0.1,
@@ -547,7 +594,7 @@ class FollowUpApp:
             header_text,
             ha="center",
             va="top",
-            fontsize=7,
+            fontsize=6,
             color="#333333",
         )
 
@@ -648,13 +695,13 @@ class FollowUpApp:
     def _render_chart(
         self,
         ax: plt.Axes,
-        timestamps,
-        values,
+        data: pd.DataFrame,
         kpi_name: str,
         is_percent: bool,
         chart_type: str,
         *,
         style_scale: float = 1.0,
+        tasklines: list[tuple[pd.Timestamp, str]] | None = None,
     ) -> None:
         fig = ax.figure
         fig.patch.set_facecolor("#ffffff")
@@ -664,40 +711,75 @@ class FollowUpApp:
             spine.set_visible(False)
 
         chart_kind = (chart_type or "line").lower()
-        line_color = "#620111"
-        fill_color = "#620111"
+        line_color = "#52000f"
+        fill_color = "#791021"
         linewidth = 2.4 * max(0.65, style_scale)
 
-        index = pd.to_datetime(timestamps)
-        plot_series = pd.Series(values, index=index).sort_index()
-        plot_series = pd.to_numeric(plot_series, errors="coerce")
+        plot_df = data.sort_index().astype(float)
+        if plot_df.empty:
+            return
+
         if is_percent:
-            finite_values = plot_series.replace([np.inf, -np.inf], np.nan).dropna()
+            finite_values = plot_df.replace([np.inf, -np.inf], np.nan).stack(dropna=True)
             if not finite_values.empty and finite_values.max() <= 1.5:
-                plot_series = plot_series * 100.0
+                plot_df = plot_df * 100.0
 
-        x_values = plot_series.index
-        y_values = plot_series.values
+        x_values = plot_df.index
+        legend_labels: list[str] = []
 
-        if chart_kind == "bar":
+        if chart_kind == "stacked_bar":
             date_numbers = mdates.date2num(x_values)
             if len(date_numbers) > 1:
                 spacing = np.diff(np.sort(date_numbers))
                 bar_width = float(np.min(spacing)) * 0.7
             else:
-                bar_width = 0.02
+                bar_width = 0.25
+            bottoms = np.zeros(len(plot_df))
+            palette = [
+                "#8b1d3b",
+                "#c9433c",
+                "#f0624d",
+                "#f79352",
+                "#fbc87d",
+                "#fde0a5",
+            ]
+            for idx, column in enumerate(plot_df.columns):
+                values = plot_df[column].fillna(0).to_numpy()
+                color = palette[idx % len(palette)]
+                ax.bar(
+                    x_values,
+                    values,
+                    width=bar_width,
+                    bottom=bottoms,
+                    color=color,
+                    edgecolor="#ffffff",
+                    linewidth=0.4,
+                )
+                bottoms = bottoms + values
+                legend_labels.append(str(column))
+        elif chart_kind == "bar":
+            date_numbers = mdates.date2num(x_values)
+            if len(date_numbers) > 1:
+                spacing = np.diff(np.sort(date_numbers))
+                bar_width = float(np.min(spacing)) * 0.6
+            else:
+                bar_width = 0.18
+            column = plot_df.columns[0]
             ax.bar(
                 x_values,
-                y_values,
+                plot_df[column].to_numpy(),
                 width=bar_width,
                 color=line_color,
-                alpha=0.78,
+                alpha=0.82,
                 edgecolor=line_color,
             )
+            legend_labels.append(str(column))
         else:
-            ax.plot(x_values, y_values, linewidth=linewidth, color=line_color)
-            fill_alpha = 0.24 if chart_kind == "area" else 0.12
-            ax.fill_between(x_values, y_values, color=fill_color, alpha=fill_alpha)
+            column = plot_df.columns[0]
+            ax.plot(x_values, plot_df[column].to_numpy(), linewidth=linewidth, color=line_color)
+            if chart_kind == "area":
+                ax.fill_between(x_values, plot_df[column].to_numpy(), color=fill_color, alpha=0.2)
+            legend_labels.append(str(column))
 
         ymin, ymax = ax.get_ylim()
         if np.isfinite(ymin) and np.isfinite(ymax):
@@ -706,22 +788,22 @@ class FollowUpApp:
             padding = 1.0
         ax.set_ylim(ymin - padding * 0.12, ymax + padding)
 
-        for ts, label in self.tasklines:
-            if plot_series.index.min() <= ts <= plot_series.index.max():
-                ax.axvline(ts, color="#8c8c8c", linestyle="--", linewidth=1.1)
+        for ts, label in tasklines or []:
+            if x_values.min() <= ts <= x_values.max():
+                ax.axvline(ts, color="#8c8c8c", linestyle="--", linewidth=1.0)
                 ax.text(
                     ts,
                     ax.get_ylim()[1] - padding * 0.25,
                     label,
-                    color="#6f6f6f",
+                    color="#5f5f5f",
                     rotation=90,
                     ha="right",
                     va="top",
-                    fontsize=max(6, 7.5 * style_scale),
+                    fontsize=max(6, 7.2 * style_scale),
                     bbox={
                         "facecolor": "#ffffff",
                         "edgecolor": "none",
-                        "alpha": 0.72,
+                        "alpha": 0.7,
                         "pad": 1,
                     },
                 )
@@ -749,21 +831,31 @@ class FollowUpApp:
         title = ax.title
         title.set_y(1.04 if style_scale < 1.0 else 1.05)
 
+        if legend_labels and chart_kind in {"stacked_bar", "bar"} and len(plot_df.columns) > 1:
+            ax.legend(
+                legend_labels,
+                loc="upper center",
+                bbox_to_anchor=(0.5, 1.18),
+                ncol=min(len(legend_labels), 4),
+                frameon=False,
+                fontsize=max(6, 7.5 * style_scale),
+            )
+
         for label in ax.get_xticklabels():
             label.set_rotation(24)
             label.set_horizontalalignment("right")
 
     def generate_report(self):
+        if self._is_generating:
+            messagebox.showinfo(
+                "Processando",
+                "Um relatório já está sendo gerado. Aguarde a finalização antes de iniciar outro.",
+            )
+            return
+
         if self.df is None:
             messagebox.showerror("Erro", "Importe os CSVs antes.")
             return
-
-        kpis = self.load_kpi_formulas()
-        if not kpis:
-            messagebox.showerror("Erro", "Arquivo kpi_formulas.json não encontrado.")
-            return
-
-        self._show_progress("Preparando geração...", 0)
 
         should_export_png = self.export_png.get()
         should_export_pdf = self.export_pdf.get()
@@ -773,14 +865,21 @@ class FollowUpApp:
                 "Formato não selecionado",
                 "Selecione pelo menos um formato de exportação (PNG, PDF ou PPTX).",
             )
-            self._hide_progress()
             return
 
-        df_filt = self.aplicar_filtros(self.df)
+        kpis = self.load_kpi_formulas()
+        if not kpis:
+            messagebox.showerror("Erro", "Arquivo kpi_formulas.json não encontrado.")
+            return
+
+        df_filt = self.aplicar_filtros(self.df).copy()
         if df_filt.empty:
             messagebox.showerror("Sem dados", "Nenhum dado encontrado com os filtros selecionados.")
-            self._hide_progress()
             return
+
+        metadata = self._gather_report_metadata(df_filt)
+        self._tasklines_snapshot = list(self.tasklines)
+        filtro_nome = self.get_filtro_nome()
 
         data_hoje = datetime.now().strftime("%Y%m%d")
         followup_name = self.kpi_title_entry.get().strip().replace(" ", "_")
@@ -788,83 +887,129 @@ class FollowUpApp:
         base_folder = f"FollowUp_5G{followup_suffix}_{data_hoje}"
         out_dir = os.path.join(os.getcwd(), base_folder)
         os.makedirs(out_dir, exist_ok=True)
+
+        per_page = int(self.page_layout.get())
+
+        self.progress_queue = Queue()
+        self._is_generating = True
+        self._show_progress("Preparando geração...", 0)
+
+        worker_args = (
+            df_filt,
+            metadata,
+            kpis,
+            bool(should_export_png),
+            bool(should_export_pdf),
+            bool(should_export_ppt),
+            out_dir,
+            followup_suffix,
+            data_hoje,
+            filtro_nome,
+            list(self._tasklines_snapshot),
+            per_page,
+        )
+
+        self._worker_thread = threading.Thread(
+            target=self._run_report_generation,
+            args=worker_args,
+            daemon=True,
+        )
+        self._worker_thread.start()
+        self.master.after(120, self._poll_progress_queue)
+
+    def _run_report_generation(
+        self,
+        df_filt: pd.DataFrame,
+        metadata: dict,
+        kpis: dict,
+        should_export_png: bool,
+        should_export_pdf: bool,
+        should_export_ppt: bool,
+        out_dir: str,
+        followup_suffix: str,
+        data_hoje: str,
+        filtro_nome: str | None,
+        tasklines: list[tuple[pd.Timestamp, str]],
+        per_page: int,
+    ) -> None:
         charts: list[dict[str, object]] = []
-
-        total_kpis = len(kpis)
-        processed_kpis = 0
-
-        for kpi_name, info in kpis.items():
-            processed_kpis += 1
-            progress_pct = (processed_kpis / total_kpis) * 70
-            self._show_progress(
-                f"Gerando gráfico {processed_kpis}/{total_kpis}...", progress_pct
-            )
-            try:
-                result_series = self._evaluate_formula(df_filt, info, kpi_name)
-                if result_series.empty:
+        try:
+            total_kpis = max(len(kpis), 1)
+            for processed_kpis, (kpi_name, info) in enumerate(kpis.items(), start=1):
+                progress_pct = (processed_kpis / total_kpis) * 70
+                self._queue_progress(
+                    f"Gerando gráfico {processed_kpis}/{total_kpis}...",
+                    progress_pct,
+                )
+                try:
+                    result_df = self._evaluate_formula(df_filt, info, kpi_name)
+                except Exception as exc:
+                    print(f"Erro no KPI {kpi_name}: {exc}")
                     continue
 
-                df_plot = result_series.sort_index().dropna()
-                if df_plot.empty:
+                if result_df.empty:
                     continue
+
+                result_df = result_df.astype(np.float32)
                 is_percent = self._is_percentage_metric(info.get("formula", ""))
-
-                timestamps = df_plot.index.to_pydatetime()
-                values = df_plot.astype(np.float32).to_numpy()
-
                 chart_type = info.get("chart_type", "line")
+
                 fig, ax = plt.subplots(figsize=(9.4, 5.6))
                 self._render_chart(
                     ax,
-                    timestamps,
-                    values,
+                    result_df,
                     kpi_name,
                     is_percent,
                     chart_type,
                     style_scale=1.0,
+                    tasklines=tasklines,
                 )
-                fig.subplots_adjust(left=0.05, right=0.99, bottom=0.12, top=0.86)
+                fig.subplots_adjust(left=0.06, right=0.98, bottom=0.14, top=0.86)
 
-                filtro_nome = self.get_filtro_nome()
                 nome_suffix = f"_{filtro_nome}" if filtro_nome else ""
-                nome_base = f"FollowUp_5G{followup_suffix}_{kpi_name.replace(' ', '_')}{nome_suffix}_{data_hoje}"
-
+                nome_base = (
+                    f"FollowUp_5G{followup_suffix}_{kpi_name.replace(' ', '_')}{nome_suffix}_{data_hoje}"
+                )
                 img_path = os.path.join(out_dir, nome_base + ".png")
                 fig.savefig(img_path, dpi=400, bbox_inches="tight", pad_inches=0.25)
                 charts.append(
                     {
                         "image_path": img_path,
-                        "timestamps": np.array(timestamps),
-                        "values": values,
+                        "data": result_df.copy(),
                         "name": kpi_name,
                         "is_percent": is_percent,
                         "chart_type": chart_type,
                     }
                 )
                 plt.close(fig)
+
+            if not charts:
+                self.progress_queue.put(
+                    {"type": "done", "status": "error", "message": "Nenhum gráfico foi gerado."}
+                )
+                return
+
+            try:
+                logos = self._load_brand_assets()
             except Exception as exc:
-                print(f"Erro no KPI {kpi_name}: {exc}")
-                continue
+                self.progress_queue.put(
+                    {"type": "done", "status": "error", "message": str(exc)}
+                )
+                return
 
-        if not charts:
-            messagebox.showerror("Erro", "Nenhum gráfico foi gerado.")
-            self._hide_progress()
-            return
-
-        try:
-            metadata = self._gather_report_metadata(df_filt)
-            logos = self._load_brand_assets()
             generated_messages: list[str] = []
+            rows = 2
+            cols = 2 if per_page == 4 else 3
+            page_size = (11.69, 8.27)
+
             if should_export_pdf:
-                self._show_progress("Montando PDF...", 75)
-                per_page = int(self.page_layout.get())
-                rows = 2
-                cols = 2 if per_page == 4 else 3
-                pdf_path = os.path.join(out_dir, f"FollowUp_5G{followup_suffix}_{data_hoje}.pdf")
-                page_size = (11.69, 8.27)
+                self._queue_progress("Montando PDF...", 75)
+                pdf_path = os.path.join(
+                    out_dir, f"FollowUp_5G{followup_suffix}_{data_hoje}.pdf"
+                )
+                style_scale = 0.8 if per_page == 4 else 0.62
                 with PdfPages(pdf_path) as pdf:
                     self._build_pdf_cover(pdf, metadata, logos, page_size)
-                    style_scale = 0.82 if per_page == 4 else 0.68
                     for chunk in self._chunked(charts, per_page):
                         fig, axs = plt.subplots(rows, cols, figsize=page_size)
                         axs_array = np.array(axs).reshape(rows * cols)
@@ -875,20 +1020,20 @@ class FollowUpApp:
                             ax.axis("on")
                             self._render_chart(
                                 ax,
-                                chart["timestamps"],
-                                chart["values"],
+                                chart["data"],
                                 chart["name"],
                                 bool(chart["is_percent"]),
                                 chart.get("chart_type", "line"),
                                 style_scale=style_scale,
+                                tasklines=tasklines,
                             )
                         fig.subplots_adjust(
-                            left=0.06,
+                            left=0.08,
                             right=0.97,
                             bottom=0.12,
                             top=0.78,
-                            wspace=0.32,
-                            hspace=0.45,
+                            wspace=0.38,
+                            hspace=0.58,
                         )
                         self._add_pdf_header(fig, metadata, logos)
                         pdf.savefig(fig, dpi=400, bbox_inches="tight")
@@ -896,15 +1041,13 @@ class FollowUpApp:
                 generated_messages.append(f"PDF: {os.path.basename(pdf_path)}")
 
             for chart in charts:
-                chart.pop("timestamps", None)
-                chart.pop("values", None)
+                chart.pop("data", None)
 
             if should_export_ppt:
-                self._show_progress("Montando PPTX...", 85)
-                per_page = int(self.page_layout.get())
-                rows = 2
-                cols = 2 if per_page == 4 else 3
-                ppt_path = os.path.join(out_dir, f"FollowUp_5G{followup_suffix}_{data_hoje}.pptx")
+                self._queue_progress("Montando PPTX...", 85)
+                ppt_path = os.path.join(
+                    out_dir, f"FollowUp_5G{followup_suffix}_{data_hoje}.pptx"
+                )
                 prs = Presentation()
                 prs.slide_width = Inches(13.33)
                 prs.slide_height = Inches(7.5)
@@ -929,32 +1072,37 @@ class FollowUpApp:
                         col = idx % cols
                         left = margin_w + col * (img_width + spacing_w)
                         top = margin_h + row * (img_height + spacing_h)
-                        slide.shapes.add_picture(img_path, left, top, width=img_width, height=img_height)
+                        slide.shapes.add_picture(
+                            img_path, left, top, width=img_width, height=img_height
+                        )
                 prs.save(ppt_path)
                 generated_messages.append(f"PPTX: {os.path.basename(ppt_path)}")
 
             if should_export_png:
                 generated_messages.append("PNGs gerados com sucesso.")
 
-            self._show_progress("Finalizando...", 100)
-
-            info_lines = "\n".join(generated_messages)
-            messagebox.showinfo(
-                "Concluído",
-                "Relatório gerado com sucesso!\n" + info_lines if info_lines else "Relatório gerado com sucesso!",
+            self._queue_progress("Finalizando...", 100)
+            self.progress_queue.put(
+                {"type": "done", "status": "success", "messages": generated_messages}
             )
 
-        except FileNotFoundError as exc:
-            messagebox.showerror("Arquivos ausentes", str(exc))
         except PermissionError:
-            messagebox.showerror("Erro ao salvar", "O arquivo está aberto em outro programa. Feche-o e tente novamente.")
+            self.progress_queue.put(
+                {
+                    "type": "done",
+                    "status": "error",
+                    "message": "O arquivo está aberto em outro programa. Feche-o e tente novamente.",
+                }
+            )
         except Exception as exc:
-            messagebox.showerror("Erro inesperado", str(exc))
+            self.progress_queue.put(
+                {"type": "done", "status": "error", "message": str(exc)}
+            )
         finally:
-            self._hide_progress()
             if not should_export_png:
-                for img_path in [chart["image_path"] for chart in charts]:
-                    if os.path.exists(img_path):
+                for chart in charts:
+                    img_path = chart.get("image_path")
+                    if img_path and os.path.exists(img_path):
                         try:
                             os.remove(img_path)
                         except OSError:
@@ -962,6 +1110,54 @@ class FollowUpApp:
             charts.clear()
             plt.close("all")
             gc.collect()
+
+    def _queue_progress(self, message: str, value: float) -> None:
+        if self.progress_queue is not None:
+            self.progress_queue.put(
+                {"type": "progress", "message": message, "value": float(value)}
+            )
+
+    def _poll_progress_queue(self):
+        queue = self.progress_queue
+        if queue is None:
+            return
+
+        done_event = False
+        try:
+            while True:
+                event = queue.get_nowait()
+                event_type = event.get("type")
+                if event_type == "progress":
+                    self._show_progress(event.get("message", ""), event.get("value", 0.0))
+                elif event_type == "done":
+                    done_event = True
+                    status = event.get("status")
+                    messages = event.get("messages", [])
+                    error_message = event.get("message", "")
+                    self._is_generating = False
+                    self._worker_thread = None
+                    self._hide_progress()
+                    if status == "success":
+                        info_lines = "\n".join(messages)
+                        messagebox.showinfo(
+                            "Concluído",
+                            "Relatório gerado com sucesso!\n" + info_lines
+                            if info_lines
+                            else "Relatório gerado com sucesso!",
+                        )
+                    else:
+                        messagebox.showerror(
+                            "Erro",
+                            error_message or "Ocorreu um erro na geração do relatório.",
+                        )
+                    break
+        except Empty:
+            pass
+
+        if done_event:
+            self.progress_queue = None
+        elif self._is_generating:
+            self.master.after(120, self._poll_progress_queue)
 
 
     def _show_progress(self, message: str, value: float):
