@@ -10,6 +10,10 @@ from itertools import islice
 from queue import Empty, Queue
 from tkinter import filedialog, messagebox, ttk
 
+import matplotlib
+
+matplotlib.use("Agg")
+
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
@@ -881,6 +885,15 @@ class FollowUpApp:
             )
             return
 
+        if should_export_pdf or should_export_ppt:
+            try:
+                logos = self._load_brand_assets()
+            except FileNotFoundError as exc:
+                messagebox.showerror("Erro", str(exc))
+                return
+        else:
+            logos = {}
+
         kpis = self.load_kpi_formulas()
         if not kpis:
             messagebox.showerror("Erro", "Arquivo kpi_formulas.json não encontrado.")
@@ -902,7 +915,22 @@ class FollowUpApp:
         out_dir = os.path.join(os.getcwd(), base_folder)
         os.makedirs(out_dir, exist_ok=True)
 
-        per_page = int(self.page_layout.get())
+        per_page_value = self.page_layout.get().strip()
+        try:
+            per_page = int(float(per_page_value))
+        except ValueError:
+            messagebox.showerror(
+                "Configuração inválida",
+                "Informe 4 ou 6 gráficos por página para gerar o relatório.",
+            )
+            return
+
+        if per_page not in {4, 6}:
+            messagebox.showerror(
+                "Configuração inválida",
+                "A quantidade de gráficos por página deve ser 4 ou 6.",
+            )
+            return
 
         self.progress_queue = Queue()
         self._is_generating = True
@@ -921,6 +949,7 @@ class FollowUpApp:
             filtro_nome,
             list(self._tasklines_snapshot),
             per_page,
+            logos,
         )
 
         self._worker_thread = threading.Thread(
@@ -945,6 +974,7 @@ class FollowUpApp:
         filtro_nome: str | None,
         tasklines: list[tuple[pd.Timestamp, str]],
         per_page: int,
+        logos: dict[str, str],
     ) -> None:
         charts: list[dict[str, object]] = []
         try:
@@ -1003,20 +1033,21 @@ class FollowUpApp:
                 )
                 return
 
-            try:
-                logos = self._load_brand_assets()
-            except Exception as exc:
-                self.progress_queue.put(
-                    {"type": "done", "status": "error", "message": str(exc)}
-                )
-                return
-
             generated_messages: list[str] = []
             rows = 2
             cols = 2 if per_page == 4 else 3
             page_size = (11.69, 8.27)
 
             if should_export_pdf:
+                if not logos:
+                    self.progress_queue.put(
+                        {
+                            "type": "done",
+                            "status": "error",
+                            "message": "Arquivos de branding ausentes para montar o PDF.",
+                        }
+                    )
+                    return
                 self._queue_progress("Montando PDF...", 75)
                 pdf_path = os.path.join(
                     out_dir, f"FollowUp_5G{followup_suffix}_{data_hoje}.pdf"
@@ -1058,6 +1089,15 @@ class FollowUpApp:
                 chart.pop("data", None)
 
             if should_export_ppt:
+                if not logos:
+                    self.progress_queue.put(
+                        {
+                            "type": "done",
+                            "status": "error",
+                            "message": "Arquivos de branding ausentes para montar o PPTX.",
+                        }
+                    )
+                    return
                 self._queue_progress("Montando PPTX...", 85)
                 ppt_path = os.path.join(
                     out_dir, f"FollowUp_5G{followup_suffix}_{data_hoje}.pptx"
