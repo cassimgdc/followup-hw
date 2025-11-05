@@ -3,11 +3,9 @@ import json
 import os
 import re
 import textwrap
-import threading
 import tkinter as tk
 from datetime import datetime
 from itertools import islice
-from queue import Empty, Queue
 from tkinter import filedialog, messagebox, ttk
 
 import matplotlib
@@ -70,10 +68,7 @@ class FollowUpApp:
         self.csv_paths = []
         self.tasklines = []
         self.df: pd.DataFrame | None = None
-        self.progress_queue: Queue | None = None
-        self._worker_thread: threading.Thread | None = None
         self._is_generating = False
-        self._tasklines_snapshot: list[tuple[pd.Timestamp, str]] = []
         self.build_interface()
 
     def validate_date_entry(self, event):
@@ -905,7 +900,6 @@ class FollowUpApp:
             return
 
         metadata = self._gather_report_metadata(df_filt)
-        self._tasklines_snapshot = list(self.tasklines)
         filtro_nome = self.get_filtro_nome()
 
         data_hoje = datetime.now().strftime("%Y%m%d")
@@ -932,33 +926,46 @@ class FollowUpApp:
             )
             return
 
-        self.progress_queue = Queue()
         self._is_generating = True
         self._show_progress("Preparando geração...", 0)
 
-        worker_args = (
-            df_filt,
-            metadata,
-            kpis,
-            bool(should_export_png),
-            bool(should_export_pdf),
-            bool(should_export_ppt),
-            out_dir,
-            followup_suffix,
-            data_hoje,
-            filtro_nome,
-            list(self._tasklines_snapshot),
-            per_page,
-            logos,
-        )
+        try:
+            messages = self._run_report_generation(
+                df_filt,
+                metadata,
+                kpis,
+                bool(should_export_png),
+                bool(should_export_pdf),
+                bool(should_export_ppt),
+                out_dir,
+                followup_suffix,
+                data_hoje,
+                filtro_nome,
+                per_page,
+                logos,
+            )
+        except PermissionError:
+            self._hide_progress()
+            self._is_generating = False
+            messagebox.showerror(
+                "Erro ao salvar",
+                "O arquivo está aberto em outro programa. Feche-o e tente novamente.",
+            )
+            return
+        except Exception as exc:
+            self._hide_progress()
+            self._is_generating = False
+            messagebox.showerror("Erro", str(exc))
+            return
 
-        self._worker_thread = threading.Thread(
-            target=self._run_report_generation,
-            args=worker_args,
-            daemon=True,
-        )
-        self._worker_thread.start()
-        self.master.after(120, self._poll_progress_queue)
+        self._is_generating = False
+        self._hide_progress()
+
+        if messages:
+            info_lines = "\n".join(messages)
+            messagebox.showinfo("Concluído", f"Relatório gerado com sucesso!\n{info_lines}")
+        else:
+            messagebox.showinfo("Concluído", "Relatório gerado com sucesso!")
 
     def _run_report_generation(
         self,
@@ -972,16 +979,17 @@ class FollowUpApp:
         followup_suffix: str,
         data_hoje: str,
         filtro_nome: str | None,
-        tasklines: list[tuple[pd.Timestamp, str]],
         per_page: int,
         logos: dict[str, str],
-    ) -> None:
+    ) -> list[str]:
         charts: list[dict[str, object]] = []
+        tasklines = list(self.tasklines)
+        generated_messages: list[str] = []
         try:
             total_kpis = max(len(kpis), 1)
             for processed_kpis, (kpi_name, info) in enumerate(kpis.items(), start=1):
                 progress_pct = (processed_kpis / total_kpis) * 70
-                self._queue_progress(
+                self._show_progress(
                     f"Gerando gráfico {processed_kpis}/{total_kpis}...",
                     progress_pct,
                 )
@@ -1028,27 +1036,17 @@ class FollowUpApp:
                 plt.close(fig)
 
             if not charts:
-                self.progress_queue.put(
-                    {"type": "done", "status": "error", "message": "Nenhum gráfico foi gerado."}
-                )
-                return
-
-            generated_messages: list[str] = []
+                raise ValueError("Nenhum gráfico foi gerado.")
             rows = 2
             cols = 2 if per_page == 4 else 3
             page_size = (11.69, 8.27)
 
             if should_export_pdf:
                 if not logos:
-                    self.progress_queue.put(
-                        {
-                            "type": "done",
-                            "status": "error",
-                            "message": "Arquivos de branding ausentes para montar o PDF.",
-                        }
+                    raise FileNotFoundError(
+                        "Arquivos de branding ausentes para montar o PDF."
                     )
-                    return
-                self._queue_progress("Montando PDF...", 75)
+                self._show_progress("Montando PDF...", 75)
                 pdf_path = os.path.join(
                     out_dir, f"FollowUp_5G{followup_suffix}_{data_hoje}.pdf"
                 )
@@ -1090,15 +1088,10 @@ class FollowUpApp:
 
             if should_export_ppt:
                 if not logos:
-                    self.progress_queue.put(
-                        {
-                            "type": "done",
-                            "status": "error",
-                            "message": "Arquivos de branding ausentes para montar o PPTX.",
-                        }
+                    raise FileNotFoundError(
+                        "Arquivos de branding ausentes para montar o PPTX."
                     )
-                    return
-                self._queue_progress("Montando PPTX...", 85)
+                self._show_progress("Montando PPTX...", 85)
                 ppt_path = os.path.join(
                     out_dir, f"FollowUp_5G{followup_suffix}_{data_hoje}.pptx"
                 )
@@ -1135,23 +1128,9 @@ class FollowUpApp:
             if should_export_png:
                 generated_messages.append("PNGs gerados com sucesso.")
 
-            self._queue_progress("Finalizando...", 100)
-            self.progress_queue.put(
-                {"type": "done", "status": "success", "messages": generated_messages}
-            )
+            self._show_progress("Finalizando...", 100)
+            return generated_messages
 
-        except PermissionError:
-            self.progress_queue.put(
-                {
-                    "type": "done",
-                    "status": "error",
-                    "message": "O arquivo está aberto em outro programa. Feche-o e tente novamente.",
-                }
-            )
-        except Exception as exc:
-            self.progress_queue.put(
-                {"type": "done", "status": "error", "message": str(exc)}
-            )
         finally:
             if not should_export_png:
                 for chart in charts:
@@ -1164,55 +1143,7 @@ class FollowUpApp:
             charts.clear()
             plt.close("all")
             gc.collect()
-
-    def _queue_progress(self, message: str, value: float) -> None:
-        if self.progress_queue is not None:
-            self.progress_queue.put(
-                {"type": "progress", "message": message, "value": float(value)}
-            )
-
-    def _poll_progress_queue(self):
-        queue = self.progress_queue
-        if queue is None:
-            return
-
-        done_event = False
-        try:
-            while True:
-                event = queue.get_nowait()
-                event_type = event.get("type")
-                if event_type == "progress":
-                    self._show_progress(event.get("message", ""), event.get("value", 0.0))
-                elif event_type == "done":
-                    done_event = True
-                    status = event.get("status")
-                    messages = event.get("messages", [])
-                    error_message = event.get("message", "")
-                    self._is_generating = False
-                    self._worker_thread = None
-                    self._hide_progress()
-                    if status == "success":
-                        info_lines = "\n".join(messages)
-                        messagebox.showinfo(
-                            "Concluído",
-                            "Relatório gerado com sucesso!\n" + info_lines
-                            if info_lines
-                            else "Relatório gerado com sucesso!",
-                        )
-                    else:
-                        messagebox.showerror(
-                            "Erro",
-                            error_message or "Ocorreu um erro na geração do relatório.",
-                        )
-                    break
-        except Empty:
-            pass
-
-        if done_event:
-            self.progress_queue = None
-        elif self._is_generating:
-            self.master.after(120, self._poll_progress_queue)
-
+        raise ValueError("Nenhum gráfico foi gerado.")
 
     def _show_progress(self, message: str, value: float):
         self.progress_frame.pack(fill="x", pady=(5, 0))
