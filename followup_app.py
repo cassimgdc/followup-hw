@@ -464,6 +464,20 @@ class FollowUpApp:
             "total_registros": len(df_filt),
         }
 
+    def _slugify(self, value: str) -> str:
+        if not value:
+            return ""
+        normalized = re.sub(r"[^\w-]+", "_", value, flags=re.UNICODE)
+        normalized = re.sub(r"_+", "_", normalized)
+        return normalized.strip("_")
+
+    def _normalize_report_name(self, raw_value: str) -> str:
+        placeholder_name = "Nome do Follow-Up (opcional)"
+        cleaned = (raw_value or "").strip()
+        if not cleaned or cleaned == placeholder_name:
+            return ""
+        return self._slugify(cleaned)
+
     def _add_cover_annotation(self, ax, image_path: str, xy: tuple[float, float], zoom: float):
         if not os.path.exists(image_path):
             return
@@ -882,8 +896,8 @@ class FollowUpApp:
         filtro_nome = self.get_filtro_nome()
 
         data_hoje = datetime.now().strftime("%Y%m%d")
-        followup_name = self.kpi_title_entry.get().strip().replace(" ", "_")
-        followup_suffix = f"_{followup_name}" if followup_name else ""
+        followup_slug = self._normalize_report_name(self.kpi_title_entry.get())
+        followup_suffix = f"_{followup_slug}" if followup_slug else ""
         base_folder = f"FollowUp_5G{followup_suffix}_{data_hoje}"
         out_dir = os.path.join(os.getcwd(), base_folder)
         os.makedirs(out_dir, exist_ok=True)
@@ -966,10 +980,10 @@ class FollowUpApp:
                 )
                 fig.subplots_adjust(left=0.06, right=0.98, bottom=0.14, top=0.86)
 
-                nome_suffix = f"_{filtro_nome}" if filtro_nome else ""
-                nome_base = (
-                    f"FollowUp_5G{followup_suffix}_{kpi_name.replace(' ', '_')}{nome_suffix}_{data_hoje}"
-                )
+                filter_slug = self._slugify(filtro_nome) if filtro_nome else ""
+                nome_suffix = f"_{filter_slug}" if filter_slug else ""
+                kpi_slug = self._slugify(kpi_name)
+                nome_base = f"FollowUp_5G{followup_suffix}_{kpi_slug}{nome_suffix}_{data_hoje}"
                 img_path = os.path.join(out_dir, nome_base + ".png")
                 fig.savefig(img_path, dpi=400, bbox_inches="tight", pad_inches=0.25)
                 charts.append(
