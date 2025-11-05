@@ -435,39 +435,41 @@ class FollowUpApp:
         background = plt.imread(logos["background"])
         ax.imshow(
             background,
-            extent=[0.52, 1.02, 0.0, 1.0],
+            extent=[0.5, 1.0, 0.0, 1.0],
             aspect="auto",
             alpha=0.95,
             zorder=0,
             origin="upper",
         )
 
-        ax.text(
-            0.08,
-            0.82,
-            "FOLLOW UP",
-            fontsize=46,
-            fontweight="bold",
-            color="#c3002f",
-            va="top",
-        )
-        ax.text(
-            0.08,
-            0.70,
-            "5G",
-            fontsize=78,
-            fontweight="bold",
-            color="#c3002f",
-            va="top",
-        )
+        self._add_cover_annotation(ax, logos["huawei"], (0.12, 0.94), 0.42)
+        self._add_cover_annotation(ax, logos["vivo"], (0.28, 0.94), 0.42)
 
-        self._add_cover_annotation(ax, logos["huawei"], (0.26, 0.88), 0.34)
-        self._add_cover_annotation(ax, logos["vivo"], (0.48, 0.88), 0.34)
+        ax.text(
+            0.08,
+            0.80,
+            "FOLLOW UP",
+            fontsize=40,
+            fontweight="bold",
+            color="#c3002f",
+            va="top",
+            ha="left",
+        )
+        ax.text(
+            0.08,
+            0.68,
+            "5G",
+            fontsize=68,
+            fontweight="bold",
+            color="#c3002f",
+            va="top",
+            ha="left",
+        )
 
         box = FancyBboxPatch(
             (0.08, 0.04),
-            0.36,
-            0.36,
+            0.34,
+            0.3,
             boxstyle="round,pad=0.08",
             linewidth=1.4,
             edgecolor="#c3002f",
@@ -477,7 +479,7 @@ class FollowUpApp:
 
         summary_lines = []
         if metadata["report_name"]:
-            summary_lines.append(f"Report Name: {metadata['report_name']}")
+            summary_lines.append(metadata["report_name"])
         summary_lines.append(f"Date: {metadata['date_range']}")
         summary_lines.append(f"Hour: {metadata['hours']}")
         label_map = {
@@ -496,12 +498,13 @@ class FollowUpApp:
 
         ax.text(
             0.1,
-            0.36,
+            0.32,
             "\n".join(summary_lines),
-            fontsize=12,
+            fontsize=11,
             color="#4b1a20",
             va="top",
-            linespacing=1.3,
+            ha="left",
+            linespacing=1.25,
         )
 
         pdf.savefig(fig, dpi=400)
@@ -513,13 +516,17 @@ class FollowUpApp:
 
         left_ax = fig.add_axes([0.02, 0.86, 0.12, header_height])
         left_ax.axis("off")
+        left_ax.set_zorder(-1)
         if os.path.exists(logos["huawei"]):
-            left_ax.imshow(plt.imread(logos["huawei"]))
+            left_ax.patch.set_alpha(0.0)
+            left_ax.imshow(plt.imread(logos["huawei"]), alpha=0.38, zorder=-1)
 
         right_ax = fig.add_axes([0.86, 0.86, 0.12, header_height])
         right_ax.axis("off")
+        right_ax.set_zorder(-1)
         if os.path.exists(logos["vivo"]):
-            right_ax.imshow(plt.imread(logos["vivo"]))
+            right_ax.patch.set_alpha(0.0)
+            right_ax.imshow(plt.imread(logos["vivo"]), alpha=0.38, zorder=-1)
 
         label_map = {
             "gNodeB Name": "gNodeB",
@@ -527,7 +534,7 @@ class FollowUpApp:
             "NR Cell ID": "NR Cell ID",
             "Frequency Band": "Frequency Band",
         }
-        filters_summary = [metadata["date_range"], f"Hour: {metadata['hours']}"]
+        filters_summary = [f"Hour: {metadata['hours']}"]
         for key in label_map:
             value = metadata["filters"].get(key)
             if value is not None:
@@ -540,7 +547,7 @@ class FollowUpApp:
             header_text,
             ha="center",
             va="top",
-            fontsize=8,
+            fontsize=7,
             color="#333333",
         )
 
@@ -557,31 +564,32 @@ class FollowUpApp:
                 height=prs.slide_height,
             )
 
-        title_box = slide.shapes.add_textbox(Inches(0.9), Inches(0.8), prs.slide_width - Inches(5.0), Inches(2.5))
+        if os.path.exists(logos["huawei"]):
+            slide.shapes.add_picture(logos["huawei"], Inches(0.9), Inches(0.2), height=Inches(1.6))
+        if os.path.exists(logos["vivo"]):
+            slide.shapes.add_picture(logos["vivo"], Inches(2.4), Inches(0.28), height=Inches(1.4))
+
+        title_box = slide.shapes.add_textbox(Inches(0.9), Inches(1.5), prs.slide_width - Inches(6.0), Inches(2.2))
         title_frame = title_box.text_frame
         title_frame.clear()
         title_frame.text = "FOLLOW UP"
-        title_frame.paragraphs[0].font.size = Pt(42)
+        title_frame.paragraphs[0].font.size = Pt(38)
         title_frame.paragraphs[0].font.bold = True
         title_frame.paragraphs[0].font.color.rgb = RGBColor(195, 0, 47)
+        title_frame.paragraphs[0].alignment = 0
         para = title_frame.add_paragraph()
         para.text = "5G"
-        para.font.size = Pt(78)
+        para.font.size = Pt(64)
         para.font.bold = True
         para.font.color.rgb = RGBColor(195, 0, 47)
-
-        logo_top = Inches(2.3)
-        if os.path.exists(logos["huawei"]):
-            slide.shapes.add_picture(logos["huawei"], Inches(0.9), logo_top, height=Inches(1.9))
-        if os.path.exists(logos["vivo"]):
-            slide.shapes.add_picture(logos["vivo"], Inches(3.5), logo_top, height=Inches(1.8))
+        para.alignment = 0
 
         summary_shape = slide.shapes.add_shape(
             MSO_AUTO_SHAPE_TYPE.ROUNDED_RECTANGLE,
             Inches(0.9),
-            prs.slide_height - Inches(3.1),
-            Inches(3.4),
-            Inches(2.9),
+            prs.slide_height - Inches(2.7),
+            Inches(3.3),
+            Inches(2.5),
         )
         fill = summary_shape.fill
         fill.solid()
@@ -593,15 +601,23 @@ class FollowUpApp:
         summary_frame = summary_shape.text_frame
         summary_frame.clear()
         if metadata["report_name"]:
-            summary_frame.text = f"Report Name: {metadata['report_name']}"
+            title_para = summary_frame.paragraphs[0]
+            title_para.text = metadata["report_name"]
+            title_para.font.size = Pt(20)
+            title_para.font.bold = True
+            title_para.font.color.rgb = RGBColor(75, 26, 32)
         else:
-            summary_frame.text = f"Date: {metadata['date_range']}"
+            summary_frame.text = ""
 
-        if metadata["report_name"]:
-            para = summary_frame.add_paragraph()
-            para.text = f"Date: {metadata['date_range']}"
+        para = summary_frame.add_paragraph()
+        para.text = f"Date: {metadata['date_range']}"
+        para.font.size = Pt(14)
+        para.font.color.rgb = RGBColor(75, 26, 32)
+
         para = summary_frame.add_paragraph()
         para.text = f"Hour: {metadata['hours']}"
+        para.font.size = Pt(14)
+        para.font.color.rgb = RGBColor(75, 26, 32)
 
         label_map = {
             "gNodeB Name": "gNodeB",
@@ -614,14 +630,20 @@ class FollowUpApp:
             if value is not None:
                 para = summary_frame.add_paragraph()
                 para.text = f"{label}: {value}"
+                para.font.size = Pt(13)
+                para.font.color.rgb = RGBColor(75, 26, 32)
 
         if metadata["tasklines"]:
             para = summary_frame.add_paragraph()
             para.text = "Task Lines:"
+            para.font.size = Pt(13)
+            para.font.color.rgb = RGBColor(75, 26, 32)
             for line_text in metadata["tasklines"]:
                 bullet = summary_frame.add_paragraph()
                 bullet.text = line_text
                 bullet.level = 1
+                bullet.font.size = Pt(12)
+                bullet.font.color.rgb = RGBColor(75, 26, 32)
 
     def _render_chart(
         self,
@@ -630,6 +652,7 @@ class FollowUpApp:
         values,
         kpi_name: str,
         is_percent: bool,
+        chart_type: str,
         *,
         style_scale: float = 1.0,
     ) -> None:
@@ -640,9 +663,10 @@ class FollowUpApp:
         for spine in ax.spines.values():
             spine.set_visible(False)
 
-        line_color = "#780914"
-        fill_color = "#780914"
-        linewidth = 2.6 * max(0.7, style_scale)
+        chart_kind = (chart_type or "line").lower()
+        line_color = "#620111"
+        fill_color = "#620111"
+        linewidth = 2.4 * max(0.65, style_scale)
 
         index = pd.to_datetime(timestamps)
         plot_series = pd.Series(values, index=index).sort_index()
@@ -652,8 +676,28 @@ class FollowUpApp:
             if not finite_values.empty and finite_values.max() <= 1.5:
                 plot_series = plot_series * 100.0
 
-        ax.plot(plot_series.index, plot_series.values, linewidth=linewidth, color=line_color)
-        ax.fill_between(plot_series.index, plot_series.values, color=fill_color, alpha=0.1)
+        x_values = plot_series.index
+        y_values = plot_series.values
+
+        if chart_kind == "bar":
+            date_numbers = mdates.date2num(x_values)
+            if len(date_numbers) > 1:
+                spacing = np.diff(np.sort(date_numbers))
+                bar_width = float(np.min(spacing)) * 0.7
+            else:
+                bar_width = 0.02
+            ax.bar(
+                x_values,
+                y_values,
+                width=bar_width,
+                color=line_color,
+                alpha=0.78,
+                edgecolor=line_color,
+            )
+        else:
+            ax.plot(x_values, y_values, linewidth=linewidth, color=line_color)
+            fill_alpha = 0.24 if chart_kind == "area" else 0.12
+            ax.fill_between(x_values, y_values, color=fill_color, alpha=fill_alpha)
 
         ymin, ymax = ax.get_ylim()
         if np.isfinite(ymin) and np.isfinite(ymax):
@@ -673,7 +717,7 @@ class FollowUpApp:
                     rotation=90,
                     ha="right",
                     va="top",
-                    fontsize=max(6, 8 * style_scale),
+                    fontsize=max(6, 7.5 * style_scale),
                     bbox={
                         "facecolor": "#ffffff",
                         "edgecolor": "none",
@@ -684,7 +728,7 @@ class FollowUpApp:
 
         ax.set_xlabel("", color="#000000")
         ax.set_ylabel("", color="#000000")
-        ax.tick_params(axis="both", colors="#000000", labelsize=max(8, 10 * style_scale))
+        ax.tick_params(axis="both", colors="#000000", labelsize=max(7, 9 * style_scale))
 
         if is_percent:
             ax.yaxis.set_major_formatter(mticker.PercentFormatter(xmax=100, decimals=1))
@@ -693,11 +737,12 @@ class FollowUpApp:
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%d/%m %H:%M"))
         ax.margins(x=0.01)
 
-        wrapped_title = textwrap.fill(kpi_name, width=42 if style_scale >= 1.0 else 36)
+        wrapped_title = textwrap.fill(kpi_name, width=40 if style_scale >= 1.0 else 34)
+        title_font = max(8, 11 * style_scale)
         ax.set_title(
             wrapped_title,
             fontweight="bold",
-            fontsize=max(9, 12 * style_scale),
+            fontsize=title_font,
             color="#6c0b14",
             pad=20 * style_scale,
         )
@@ -767,6 +812,7 @@ class FollowUpApp:
                 timestamps = df_plot.index.to_pydatetime()
                 values = df_plot.astype(np.float32).to_numpy()
 
+                chart_type = info.get("chart_type", "line")
                 fig, ax = plt.subplots(figsize=(9.4, 5.6))
                 self._render_chart(
                     ax,
@@ -774,6 +820,7 @@ class FollowUpApp:
                     values,
                     kpi_name,
                     is_percent,
+                    chart_type,
                     style_scale=1.0,
                 )
                 fig.subplots_adjust(left=0.05, right=0.99, bottom=0.12, top=0.86)
@@ -791,6 +838,7 @@ class FollowUpApp:
                         "values": values,
                         "name": kpi_name,
                         "is_percent": is_percent,
+                        "chart_type": chart_type,
                     }
                 )
                 plt.close(fig)
@@ -816,6 +864,7 @@ class FollowUpApp:
                 page_size = (11.69, 8.27)
                 with PdfPages(pdf_path) as pdf:
                     self._build_pdf_cover(pdf, metadata, logos, page_size)
+                    style_scale = 0.82 if per_page == 4 else 0.68
                     for chunk in self._chunked(charts, per_page):
                         fig, axs = plt.subplots(rows, cols, figsize=page_size)
                         axs_array = np.array(axs).reshape(rows * cols)
@@ -830,7 +879,8 @@ class FollowUpApp:
                                 chart["values"],
                                 chart["name"],
                                 bool(chart["is_percent"]),
-                                style_scale=0.82,
+                                chart.get("chart_type", "line"),
+                                style_scale=style_scale,
                             )
                         fig.subplots_adjust(
                             left=0.06,
