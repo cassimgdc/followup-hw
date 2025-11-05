@@ -2,6 +2,7 @@ import gc
 import json
 import os
 import re
+import sys
 import textwrap
 import tkinter as tk
 from datetime import datetime
@@ -69,7 +70,14 @@ class FollowUpApp:
         self.tasklines = []
         self.df: pd.DataFrame | None = None
         self._is_generating = False
+        self._app_dir = self._resolve_app_dir()
         self.build_interface()
+
+    def _resolve_app_dir(self) -> str:
+        meipass = getattr(sys, "_MEIPASS", None)
+        if meipass:
+            return meipass
+        return os.path.dirname(os.path.abspath(__file__))
 
     def validate_date_entry(self, event):
         widget = event.widget
@@ -276,11 +284,18 @@ class FollowUpApp:
         return df
 
     def load_kpi_formulas(self) -> dict:
-        path = os.path.join(os.getcwd(), "kpi_formulas.json")
-        if os.path.exists(path):
+        path = os.path.join(self._app_dir, "kpi_formulas.json")
+        try:
             with open(path, "r", encoding="utf-8") as f:
                 return json.load(f)
-        return {}
+        except FileNotFoundError:
+            return {}
+        except json.JSONDecodeError as exc:
+            messagebox.showerror(
+                "Erro",
+                f"Não foi possível ler kpi_formulas.json: {exc}",
+            )
+            return {}
 
     def _replace_source_refs(self, formula: str) -> str:
         pattern = re.compile(r"'[^']+'\[([^\]]+)\]")
@@ -404,8 +419,7 @@ class FollowUpApp:
         return False
 
     def _load_brand_assets(self) -> dict[str, str]:
-        assets_dir = os.path.join(os.getcwd(), "assets")
-        os.makedirs(assets_dir, exist_ok=True)
+        assets_dir = os.path.join(self._app_dir, "assets")
         expected = {
             "huawei": os.path.join(assets_dir, "huawei.png"),
             "vivo": os.path.join(assets_dir, "vivo.png"),
@@ -417,7 +431,7 @@ class FollowUpApp:
             missing_names = ", ".join(missing)
             raise FileNotFoundError(
                 "Arquivos de branding ausentes: "
-                f"{missing_names}. Coloque-os na pasta 'assets/'."
+                f"{missing_names}. Coloque-os na pasta 'assets/' localizada em\n{assets_dir}."
             )
 
         return expected
