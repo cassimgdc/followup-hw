@@ -71,6 +71,7 @@ class FollowUpApp:
         self.df: pd.DataFrame | None = None
         self._is_generating = False
         self._app_dir = self._resolve_app_dir()
+        self._resource_dirs = self._build_resource_directories()
         self.build_interface()
 
     def _resolve_app_dir(self) -> str:
@@ -78,6 +79,36 @@ class FollowUpApp:
         if meipass:
             return meipass
         return os.path.dirname(os.path.abspath(__file__))
+
+    def _build_resource_directories(self) -> list[str]:
+        dirs: list[str] = []
+
+        exe_path = getattr(sys, "executable", None)
+        if exe_path:
+            exe_dir = os.path.dirname(os.path.abspath(exe_path))
+            if exe_dir and exe_dir not in dirs:
+                dirs.append(exe_dir)
+
+        cwd = os.getcwd()
+        if cwd and cwd not in dirs:
+            dirs.append(cwd)
+
+        if self._app_dir not in dirs:
+            dirs.append(self._app_dir)
+
+        return dirs
+
+    def _find_resource(self, filename: str) -> str | None:
+        for base_dir in self._resource_dirs:
+            direct_path = os.path.join(base_dir, filename)
+            if os.path.exists(direct_path):
+                return direct_path
+
+            assets_path = os.path.join(base_dir, "assets", filename)
+            if os.path.exists(assets_path):
+                return assets_path
+
+        return None
 
     def validate_date_entry(self, event):
         widget = event.widget
@@ -284,7 +315,10 @@ class FollowUpApp:
         return df
 
     def load_kpi_formulas(self) -> dict:
-        path = os.path.join(self._app_dir, "kpi_formulas.json")
+        path = self._find_resource("kpi_formulas.json")
+        if not path:
+            return {}
+
         try:
             with open(path, "r", encoding="utf-8") as f:
                 return json.load(f)
@@ -419,22 +453,24 @@ class FollowUpApp:
         return False
 
     def _load_brand_assets(self) -> dict[str, str]:
-        assets_dir = os.path.join(self._app_dir, "assets")
         expected = {
-            "huawei": os.path.join(assets_dir, "huawei.png"),
-            "vivo": os.path.join(assets_dir, "vivo.png"),
-            "background": os.path.join(assets_dir, "mapa-fundo.png"),
+            "huawei": self._find_resource("huawei.png"),
+            "vivo": self._find_resource("vivo.png"),
+            "background": self._find_resource("mapa-fundo.png"),
         }
 
-        missing = [name for name, path in expected.items() if not os.path.exists(path)]
+        missing = [name for name, path in expected.items() if not path]
         if missing:
             missing_names = ", ".join(missing)
+            search_locations = "\n".join(self._resource_dirs)
             raise FileNotFoundError(
                 "Arquivos de branding ausentes: "
-                f"{missing_names}. Coloque-os na pasta 'assets/' localizada em\n{assets_dir}."
+                f"{missing_names}. Posicione os arquivos na mesma pasta do executável"
+                " ou em uma subpasta 'assets/'.\nPastas verificadas:\n"
+                f"{search_locations}"
             )
 
-        return expected
+        return {key: path for key, path in expected.items() if path}
 
     def _gather_report_metadata(self, df_filt: pd.DataFrame) -> dict:
         placeholder_name = "Nome do Follow-Up (opcional)"

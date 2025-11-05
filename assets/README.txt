@@ -1,4 +1,4 @@
-Coloque os arquivos oficiais de branding nesta pasta antes de gerar os relatórios:
+Coloque os arquivos oficiais de branding junto ao executável **ou** nesta pasta antes de gerar os relatórios:
 - huawei.png
 - vivo.png
 - mapa-fundo.png
