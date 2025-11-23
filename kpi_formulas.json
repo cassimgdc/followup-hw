@@ -1,0 +1,386 @@
+{
+  "Average User": {
+    "formula": "df['N.User.RRCConn.Avg'].sum()",
+    "chart_type": "line"
+  },
+  "Average number of RBs for downlink MU pairing": {
+    "formula": "(1*df['N.ChMeas.MIMO.DL.MuPairing.1Layer.RB'].sum() + 2*df['N.ChMeas.MIMO.DL.MuPairing.2Layers.RB'].sum() + 3*df['N.ChMeas.MIMO.DL.MuPairing.3Layers.RB'].sum() + 4*df['N.ChMeas.MIMO.DL.MuPairing.4Layers.RB'].sum() + 5*df['N.ChMeas.MIMO.DL.MuPairing.5Layers.RB'].sum() + 6*df['N.ChMeas.MIMO.DL.MuPairing.6Layers.RB'].sum() + 7*df['N.ChMeas.MIMO.DL.MuPairing.7Layers.RB'].sum() + 8*df['N.ChMeas.MIMO.DL.MuPairing.8Layers.RB'].sum() + 9*df['N.ChMeas.MIMO.DL.MuPairing.9Layers.RB'].sum() + 10*df['N.ChMeas.MIMO.DL.MuPairing.10Layers.RB'].sum() + 11*df['N.ChMeas.MIMO.DL.MuPairing.11Layers.RB'].sum() + 12*df['N.ChMeas.MIMO.DL.MuPairing.12Layers.RB'].sum() + 13*df['N.ChMeas.MIMO.DL.MuPairing.13Layers.RB'].sum() + 14*df['N.ChMeas.MIMO.DL.MuPairing.14Layers.RB'].sum() + 15*df['N.ChMeas.MIMO.DL.MuPairing.15Layers.RB'].sum() + 16*df['N.ChMeas.MIMO.DL.MuPairing.16Layers.RB'].sum()) / (df['N.ChMeas.MIMO.DL.MuPairing.1Layer.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.2Layers.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.3Layers.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.4Layers.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.5Layers.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.6Layers.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.7Layers.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.8Layers.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.9Layers.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.10Layers.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.11Layers.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.12Layers.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.13Layers.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.14Layers.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.15Layers.RB'].sum() + df['N.ChMeas.MIMO.DL.MuPairing.16Layers.RB'].sum())",
+    "chart_type": "line"
+  },
+  "Average number of RBs for uplink MU pairing": {
+    "formula": "(1*df['N.ChMeas.MIMO.UL.MuPairing.1Layer.RB'].sum() + 2*df['N.ChMeas.MIMO.UL.MuPairing.2Layers.RB'].sum() + 3*df['N.ChMeas.MIMO.UL.MuPairing.3Layers.RB'].sum() + 4*df['N.ChMeas.MIMO.UL.MuPairing.4Layers.RB'].sum() + 5*df['N.ChMeas.MIMO.UL.MuPairing.5Layers.RB'].sum() + 6*df['N.ChMeas.MIMO.UL.MuPairing.6Layers.RB'].sum() + 7*df['N.ChMeas.MIMO.UL.MuPairing.7Layers.RB'].sum() + 8*df['N.ChMeas.MIMO.UL.MuPairing.8Layers.RB'].sum()) / (df['N.ChMeas.MIMO.UL.MuPairing.1Layer.RB'].sum() + df['N.ChMeas.MIMO.UL.MuPairing.2Layers.RB'].sum() + df['N.ChMeas.MIMO.UL.MuPairing.3Layers.RB'].sum() + df['N.ChMeas.MIMO.UL.MuPairing.4Layers.RB'].sum() + df['N.ChMeas.MIMO.UL.MuPairing.5Layers.RB'].sum() + df['N.ChMeas.MIMO.UL.MuPairing.6Layers.RB'].sum() + df['N.ChMeas.MIMO.UL.MuPairing.7Layers.RB'].sum() + df['N.ChMeas.MIMO.UL.MuPairing.8Layers.RB'].sum())",
+    "chart_type": "line"
+  },
+  "Average number of downlink MU-MIMO layers per PRB in a cell": {
+    "formula": "df['N.ChMeas.MIMO.DL.Pair.Layer'].sum() / df['N.ChMeas.MIMO.DL.Pair.PRB'].sum()",
+    "chart_type": "line"
+  },
+  "Average number of downlink layers per PRB in a cell": {
+    "formula": "(df['N.PRB.DL.DrbUsed.Avg'].sum() + df['N.PRB.DL.SrbUsed.Avg'].sum()) * df['N.DL.PDSCH.Tti.Num'].sum() / df['N.ChMeas.MIMO.DL.Transmission.Layer'].sum()",
+    "chart_type": "line"
+  },
+  "Average number of uplink MU-MIMO layers per PRB in a cell": {
+    "formula": "df['N.ChMeas.MIMO.UL.Pair.Layer'].sum() / df['N.ChMeas.MIMO.UL.Pair.PRB'].sum()",
+    "chart_type": "line"
+  },
+  "Average number of uplink layers per PRB in a cell": {
+    "formula": "df['N.PRB.PUSCH.Used.Avg'].sum() * df['N.UL.PUSCH.Tti.Num'].sum() / df['N.ChMeas.MIMO.UL.Trans.Layer'].sum()",
+    "chart_type": "line"
+  },
+  "Avg denominador TaxaDL 5G (s)": {
+    "formula": "df['N.ThpTime.DL.RmvLastSlot(microsecond)'].mean() / 1_000_000",
+    "chart_type": "line"
+  },
+  "CBRA Success Rate": {
+    "formula": "SAFE_DIV(df['N.RA.Contention.Resolution.Succ'].sum(), df['N.RA.Contention.Att'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "CCE Usage (%)": {
+    "formula": "SAFE_DIV(df['N.CCE.Used.Avg'].sum(), df['N.CCE.Avail.Avg'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "CFRA Success Rate": {
+    "formula": "SAFE_DIV(df['N.RA.Dedicated.Msg3'].sum(), df['N.RA.Dedicated.Att'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "Cell Availability": {
+    "formula": "SAFE_DIV(60 - (df['N.Cell.Unavail.Dur.Manual(s)'].sum() + df['N.Cell.Unavail.Dur.System(s)'].sum()) / 3600, 60, multiplier=100)",
+    "chart_type": "line"
+  },
+  "Cell DL Average Throughput (Mbps)": {
+    "formula": "SAFE_DIV(df['N.ThpVol.DL.Cell(kbit)'].sum(), df['N.ThpTime.DL.Cell(microsecond)'].sum(), multiplier=1000)",
+    "chart_type": "line"
+  },
+  "Cell UL Average Throughput (Mbps)": {
+    "formula": "SAFE_DIV(df['N.ThpVol.UL.Cell(kbit)'].sum(), df['N.ThpTime.UL.Cell(microsecond)'].sum(), multiplier=1000)",
+    "chart_type": "line"
+  },
+  "DL Buffer Latency (ms)": {
+    "formula": "SAFE_DIV(df['N.Traffic.DL.RlcFirstPktDelay.Time(microsecond)'].sum() / 1000, df['N.Qos.DL.RlcFirstPktDelay.Num(packet)'].sum())",
+    "chart_type": "line"
+  },
+  "DL CCE Allocation SR": {
+    "formula": "SAFE_DIV(df['N.CCE.DL.AggLvl16Num'].sum() + df['N.CCE.DL.AggLvl1Num'].sum() + df['N.CCE.DL.AggLvl2Num'].sum() + df['N.CCE.DL.AggLvl4Num'].sum() + df['N.CCE.DL.AggLvl8Num'].sum(), df['N.CCE.DL.AllocReq.Num'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "DL Data Rate above 200Mbps": {
+    "formula": "SAFE_DIV(df['N.Thp.DL.Samp.Index12'].sum() + df['N.Thp.DL.Samp.Index13'].sum() + df['N.Thp.DL.Samp.Index14'].sum(), df['N.Thp.DL.Samp.Index0'].sum() + df['N.Thp.DL.Samp.Index1'].sum() + df['N.Thp.DL.Samp.Index2'].sum() + df['N.Thp.DL.Samp.Index3'].sum() + df['N.Thp.DL.Samp.Index4'].sum() + df['N.Thp.DL.Samp.Index5'].sum() + df['N.Thp.DL.Samp.Index6'].sum() + df['N.Thp.DL.Samp.Index7'].sum() + df['N.Thp.DL.Samp.Index8'].sum() + df['N.Thp.DL.Samp.Index9'].sum() + df['N.Thp.DL.Samp.Index10'].sum() + df['N.Thp.DL.Samp.Index11'].sum() + df['N.Thp.DL.Samp.Index12'].sum() + df['N.Thp.DL.Samp.Index13'].sum() + df['N.Thp.DL.Samp.Index14'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "DL Data Rate below 50Mbps": {
+    "formula": "SAFE_DIV(df['N.Thp.DL.Samp.Index0'].sum() + df['N.Thp.DL.Samp.Index1'].sum() + df['N.Thp.DL.Samp.Index2'].sum() + df['N.Thp.DL.Samp.Index3'].sum() + df['N.Thp.DL.Samp.Index4'].sum() + df['N.Thp.DL.Samp.Index5'].sum() + df['N.Thp.DL.Samp.Index6'].sum() + df['N.Thp.DL.Samp.Index7'].sum() + df['N.Thp.DL.Samp.Index8'].sum() + df['N.Thp.DL.Samp.Index9'].sum(), df['N.Thp.DL.Samp.Index0'].sum() + df['N.Thp.DL.Samp.Index1'].sum() + df['N.Thp.DL.Samp.Index2'].sum() + df['N.Thp.DL.Samp.Index3'].sum() + df['N.Thp.DL.Samp.Index4'].sum() + df['N.Thp.DL.Samp.Index5'].sum() + df['N.Thp.DL.Samp.Index6'].sum() + df['N.Thp.DL.Samp.Index7'].sum() + df['N.Thp.DL.Samp.Index8'].sum() + df['N.Thp.DL.Samp.Index9'].sum() + df['N.Thp.DL.Samp.Index10'].sum() + df['N.Thp.DL.Samp.Index11'].sum() + df['N.Thp.DL.Samp.Index12'].sum() + df['N.Thp.DL.Samp.Index13'].sum() + df['N.Thp.DL.Samp.Index14'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "DL Data Rate between 50 to 200": {
+    "formula": "SAFE_DIV(df['N.Thp.DL.Samp.Index10'].sum() + df['N.Thp.DL.Samp.Index11'].sum(), df['N.Thp.DL.Samp.Index0'].sum() + df['N.Thp.DL.Samp.Index1'].sum() + df['N.Thp.DL.Samp.Index2'].sum() + df['N.Thp.DL.Samp.Index3'].sum() + df['N.Thp.DL.Samp.Index4'].sum() + df['N.Thp.DL.Samp.Index5'].sum() + df['N.Thp.DL.Samp.Index6'].sum() + df['N.Thp.DL.Samp.Index7'].sum() + df['N.Thp.DL.Samp.Index8'].sum() + df['N.Thp.DL.Samp.Index9'].sum() + df['N.Thp.DL.Samp.Index10'].sum() + df['N.Thp.DL.Samp.Index11'].sum() + df['N.Thp.DL.Samp.Index12'].sum() + df['N.Thp.DL.Samp.Index13'].sum() + df['N.Thp.DL.Samp.Index14'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "DL Data Rate distribution": {
+    "formula": "{\"Below 50 Mbps\": SAFE_DIV(df['N.Thp.DL.Samp.Index0'].sum() + df['N.Thp.DL.Samp.Index1'].sum() + df['N.Thp.DL.Samp.Index2'].sum() + df['N.Thp.DL.Samp.Index3'].sum() + df['N.Thp.DL.Samp.Index4'].sum() + df['N.Thp.DL.Samp.Index5'].sum() + df['N.Thp.DL.Samp.Index6'].sum() + df['N.Thp.DL.Samp.Index7'].sum() + df['N.Thp.DL.Samp.Index8'].sum() + df['N.Thp.DL.Samp.Index9'].sum(), df['N.Thp.DL.Samp.Index0'].sum() + df['N.Thp.DL.Samp.Index1'].sum() + df['N.Thp.DL.Samp.Index2'].sum() + df['N.Thp.DL.Samp.Index3'].sum() + df['N.Thp.DL.Samp.Index4'].sum() + df['N.Thp.DL.Samp.Index5'].sum() + df['N.Thp.DL.Samp.Index6'].sum() + df['N.Thp.DL.Samp.Index7'].sum() + df['N.Thp.DL.Samp.Index8'].sum() + df['N.Thp.DL.Samp.Index9'].sum() + df['N.Thp.DL.Samp.Index10'].sum() + df['N.Thp.DL.Samp.Index11'].sum() + df['N.Thp.DL.Samp.Index12'].sum() + df['N.Thp.DL.Samp.Index13'].sum() + df['N.Thp.DL.Samp.Index14'].sum(), multiplier=100), \"50-200 Mbps\": SAFE_DIV(df['N.Thp.DL.Samp.Index10'].sum() + df['N.Thp.DL.Samp.Index11'].sum(), df['N.Thp.DL.Samp.Index0'].sum() + df['N.Thp.DL.Samp.Index1'].sum() + df['N.Thp.DL.Samp.Index2'].sum() + df['N.Thp.DL.Samp.Index3'].sum() + df['N.Thp.DL.Samp.Index4'].sum() + df['N.Thp.DL.Samp.Index5'].sum() + df['N.Thp.DL.Samp.Index6'].sum() + df['N.Thp.DL.Samp.Index7'].sum() + df['N.Thp.DL.Samp.Index8'].sum() + df['N.Thp.DL.Samp.Index9'].sum() + df['N.Thp.DL.Samp.Index10'].sum() + df['N.Thp.DL.Samp.Index11'].sum() + df['N.Thp.DL.Samp.Index12'].sum() + df['N.Thp.DL.Samp.Index13'].sum() + df['N.Thp.DL.Samp.Index14'].sum(), multiplier=100), \"Above 200 Mbps\": SAFE_DIV(df['N.Thp.DL.Samp.Index12'].sum() + df['N.Thp.DL.Samp.Index13'].sum() + df['N.Thp.DL.Samp.Index14'].sum(), df['N.Thp.DL.Samp.Index0'].sum() + df['N.Thp.DL.Samp.Index1'].sum() + df['N.Thp.DL.Samp.Index2'].sum() + df['N.Thp.DL.Samp.Index3'].sum() + df['N.Thp.DL.Samp.Index4'].sum() + df['N.Thp.DL.Samp.Index5'].sum() + df['N.Thp.DL.Samp.Index6'].sum() + df['N.Thp.DL.Samp.Index7'].sum() + df['N.Thp.DL.Samp.Index8'].sum() + df['N.Thp.DL.Samp.Index9'].sum() + df['N.Thp.DL.Samp.Index10'].sum() + df['N.Thp.DL.Samp.Index11'].sum() + df['N.Thp.DL.Samp.Index12'].sum() + df['N.Thp.DL.Samp.Index13'].sum() + df['N.Thp.DL.Samp.Index14'].sum(), multiplier=100)}",
+    "chart_type": "stacked_bar"
+  },
+  "DL IBLER (%)": {
+    "formula": "SAFE_DIV(df['N.DL.SCH.QPSK.ErrTB.Ibler'].sum() + df['N.DL.SCH.16QAM.ErrTB.Ibler'].sum() + df['N.DL.SCH.64QAM.ErrTB.Ibler'].sum() + df['N.DL.SCH.256QAM.ErrTB.Ibler'].sum(), df['N.DL.SCH.QPSK.TB'].sum() + df['N.DL.SCH.16QAM.TB'].sum() + df['N.DL.SCH.64QAM.TB'].sum() + df['N.DL.SCH.256QAM.TB'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "DL PRB Usage Rate (%)": {
+    "formula": "SAFE_DIV(df['N.PRB.DL.Used.Avg'].sum(), df['N.PRB.DL.Avail.Avg'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "DL PRB Usage Rate DSS (%)": {
+    "formula": "SAFE_DIV(df['N.PRB.DL.Actual.Avail.Avg'].sum(), df['N.PRB.DL.Avail.Avg'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "DL Packet Loss Rate (PDCP)": {
+    "formula": "SAFE_DIV(df['N.PDCP.DL.TrfSDU.TxPacket.Discard(packet)'].sum(), df['N.PDCP.DL.TrfPDU.TxPackets(packet)'].sum())",
+    "chart_type": "line"
+  },
+  "DL Packet Loss Rate (RLC)": {
+    "formula": "SAFE_DIV(df['N.RLC.DL.TrfSDU.PktUuTrans.Loss(packet)'].sum(), df['N.RLC.DL.TrfSDU.RxPackets(packet)'].sum())",
+    "chart_type": "line"
+  },
+  "DL Packet Retrans Rate (PDCP)": {
+    "formula": "SAFE_DIV(df['N.PDCP.DL.TrfPDU.ReTxPackets(packet)'].sum(), df['N.PDCP.DL.TrfPDU.TxPackets(packet)'].sum())",
+    "chart_type": "line"
+  },
+  "DL RBLER (%)": {
+    "formula": "SAFE_DIV(df['N.DL.SCH.QPSK.ErrTB.Rbler'].sum() + df['N.DL.SCH.16QAM.ErrTB.Rbler'].sum() + df['N.DL.SCH.64QAM.ErrTB.Rbler'].sum() + df['N.DL.SCH.256QAM.ErrTB.Rbler'].sum(), df['N.DL.SCH.QPSK.TB'].sum() + df['N.DL.SCH.16QAM.TB'].sum() + df['N.DL.SCH.64QAM.TB'].sum() + df['N.DL.SCH.256QAM.TB'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "DL Retrans (%)": {
+    "formula": "SAFE_DIV(df['N.DL.SCH.QPSK.TB.Retrans'].sum() + df['N.DL.SCH.16QAM.TB.Retrans'].sum() + df['N.DL.SCH.64QAM.TB.Retrans'].sum() + df['N.DL.SCH.256QAM.TB.Retrans'].sum(), df['N.DL.SCH.QPSK.TB'].sum() + df['N.DL.SCH.16QAM.TB'].sum() + df['N.DL.SCH.64QAM.TB'].sum() + df['N.DL.SCH.256QAM.TB'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "DL Scheduling times": {
+    "formula": "df['N.User.Schedule.Dl.Sum'].sum()",
+    "chart_type": "line"
+  },
+  "DL Spectrum Effectiveness (bit/hz)": {
+    "formula": "SAFE_DIV(100 * df['N.ThpVol.DL(kbit)'].sum(), (df['N.DL.PDSCH.Tti.Num'].mean()) * df['N.PRB.DL.DrbUsed.Avg'].sum() * 18)",
+    "chart_type": "line"
+  },
+  "DL Spectrum Effectiveness SCS15": {
+    "formula": "SAFE_DIV(1000 * df['N.ThpVol.DL(kbit)'].sum(), (df['N.DL.PDSCH.Tti.Num'].sum() / 1000) * df['N.PRB.DL.DrbUsed.Avg'].sum() * 180000)",
+    "chart_type": "line"
+  },
+  "DL Spectrum Effectiveness SCS30": {
+    "formula": "SAFE_DIV(1000 * df['N.ThpVol.DL(kbit)'].sum(), (df['N.DL.PDSCH.Tti.Num'].sum() / 2000) * df['N.PRB.DL.DrbUsed.Avg'].sum() * 360000)",
+    "chart_type": "line"
+  },
+  "DL Volume (GB)": {
+    "formula": "df['N.ThpVol.DL(kbit)'].sum() / 1_000_000",
+    "chart_type": "area"
+  },
+  "Downlink DCI allocation success rate": {
+    "formula": "SAFE_DIV(df['N.CCE.DL.AggLvl1Num'].sum() + df['N.CCE.DL.AggLvl2Num'].sum() + df['N.CCE.DL.AggLvl4Num'].sum() + df['N.CCE.DL.AggLvl8Num'].sum() + df['N.CCE.DL.AggLvl16Num'].sum(), df['N.CCE.DL.AllocReq.Num'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "EFIC.Inter-SgNB Change": {
+    "formula": "SAFE_DIV(df['N.NsaDc.InterSgNB.PSCell.Change.Succ'].sum(), df['N.NsaDc.InterSgNB.PSCell.Change.Att'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "EFIC.Intra-SgNB Change": {
+    "formula": "SAFE_DIV(df['N.NsaDc.IntraSgNB.PSCell.Change.Succ'].sum(), df['N.NsaDc.IntraSgNB.PSCell.Change.Att'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "EFIC.NR-InterFreq_HO Out": {
+    "formula": "SAFE_DIV(df['N.HO.InterFreq.IntragNB.ExecSuccOut'].sum() + df['N.HO.InterFreq.Xn.IntergNB.ExecSuccOut'].sum() + df['N.HO.InterFreq.Ng.IntergNB.ExecSuccOut'].sum(), df['N.HO.InterFreq.IntragNB.ExecAttOut'].sum() + df['N.HO.InterFreq.Xn.IntergNB.ExecAttOut'].sum() + df['N.HO.InterFreq.Ng.IntergNB.ExecAttOut'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "EFIC.NR-InterRAT_HO Out(N2L)": {
+    "formula": "SAFE_DIV(df['N.HO.InterRAT.N2E.ExecSuccOut'].sum(), df['N.HO.InterRAT.N2E.ExecAttOut'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "EFIC.NR-IntraFreq_HO Out": {
+    "formula": "SAFE_DIV(df['N.HO.IntraFreq.Ng.IntergNB.ExecSuccOut'].sum() + df['N.HO.IntraFreq.IntragNB.ExecSuccOut'].sum() + df['N.HO.IntraFreq.Xn.IntergNB.ExecSuccOut'].sum(), df['N.HO.IntraFreq.Ng.IntergNB.ExecAttOut'].sum() + df['N.HO.IntraFreq.IntragNB.ExecAttOut'].sum() + df['N.HO.IntraFreq.Xn.IntergNB.ExecAttOut'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "EFIC.NR_NGSIG Conn.SETUP": {
+    "formula": "SAFE_DIV(df['N.NGSig.ConnEst.Succ'].sum(), df['N.NGSig.ConnEst.Att'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "EFIC.NR_RRC Setup (Signaling)": {
+    "formula": "SAFE_DIV(df['N.RRC.SetupReq.Succ.MoSig'].sum(), df['N.RRC.SetupReq.Att.MoSig'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "EFIC.NR_RRC Setup(Service)": {
+    "formula": "SAFE_DIV(df['N.RRC.SetupReq.Succ.Emc'].sum() + df['N.RRC.SetupReq.Succ.HighPri'].sum() + df['N.RRC.SetupReq.Succ.Mt'].sum() + df['N.RRC.SetupReq.Succ.MoData'].sum() + df['N.RRC.SetupReq.Succ.MoVoiceCall'].sum() + df['N.RRC.SetupReq.Succ.MpsPri'].sum() + df['N.RRC.SetupReq.Succ.MoSms'].sum() + df['N.RRC.SetupReq.Succ.MoVideoCall'].sum(), df['N.RRC.SetupReq.Att.Emc'].sum() + df['N.RRC.SetupReq.Att.HighPri'].sum() + df['N.RRC.SetupReq.Att.Mt'].sum() + df['N.RRC.SetupReq.Att.MoData'].sum() + df['N.RRC.SetupReq.Att.MoVoiceCall'].sum() + df['N.RRC.SetupReq.Att.MpsPri'].sum() + df['N.RRC.SetupReq.Att.MoSms'].sum() + df['N.RRC.SetupReq.Att.MoVideoCall'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "EFIC.NR_RRC Setup(Inactive)": {
+    "formula": "SAFE_DIV(df['N.RRC.SetupReq.Succ'].sum() + df['N.RRC.ResumeReq.Succ'].sum(), df['N.RRC.SetupReq.Att'].sum() + df['N.RRC.ResumeReq.Att'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "EPSFB Success Rate": {
+    "formula": "SAFE_DIV(df['N.HO.InterRAT.N2E.EPSFB.ExecSuccOut'].sum() + df['N.RRCRedirection.N2E.EPSFB'].sum(), df['N.Rcv.VoiceFB.Trig'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "EPSFB Success Rate Prep": {
+    "formula": "SAFE_DIV(df['N.VoiceFB.RespSucc'].sum(), df['N.Rcv.VoiceFB.Trig'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "Interference": {
+    "formula": "df['N.UL.NI.Avg(dBm)'].mean()",
+    "chart_type": "line"
+  },
+  "MAC AirInterface Pkt Delay (ms)": {
+    "formula": "SAFE_DIV(df['N.QoS.DL.PktDelayAirInterface.Time(microsecond)'].sum() / 1000, df['N.QoS.DL.PktDelayAirInterface.Num(packet)'].sum())",
+    "chart_type": "line"
+  },
+  "Max User": {
+    "formula": "df['N.User.RRCConn.Max'].sum()",
+    "chart_type": "line"
+  },
+  "Maximum number of downlink layers per PRB in a cell": {
+    "formula": "df['N.ChMeas.MIMO.DL.Transmission.Layer.Max'].max()",
+    "chart_type": "line"
+  },
+  "NG+Xn Paging Discard Rate (%)": {
+    "formula": "SAFE_DIV(df['N.Paging.Dis.PchCong'].sum() + df['N.Paging.Ng.Dis.PchCong'].sum(), df['N.Paging.NG.Rx'].sum() + df['N.Paging.Xn.Rx'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "NG+Xn Paging Discarded Qty (nb)": {
+    "formula": "df['N.Paging.Dis.PchCong'].sum() + df['N.Paging.Ng.Dis.PchCong'].sum()",
+    "chart_type": "line"
+  },
+  "NG+Xn Paging Received Qty (nb)": {
+    "formula": "df['N.Paging.NG.Rx'].sum() + df['N.Paging.Xn.Rx'].sum()",
+    "chart_type": "line"
+  },
+  "NR_QoS Flow Setup Success Rate": {
+    "formula": "SAFE_DIV(df['N.QosFlow.Est.Succ'].sum(), df['N.QosFlow.Est.Att'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "NSA Accessibility": {
+    "formula": "SAFE_DIV(df['N.NsaDc.SgNB.Add.Succ'].sum(), df['N.NsaDc.SgNB.Add.Att'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "NSA Average User": {
+    "formula": "df['N.User.NsaDc.PSCell.Avg'].sum()",
+    "chart_type": "line"
+  },
+  "NSA Max User": {
+    "formula": "df['N.User.NsaDc.PSCell.Max'].sum()",
+    "chart_type": "line"
+  },
+  "PD 5G Average (Km)": {
+    "formula": "SAFE_DIV(df['N.RA.TA.UE.Index0'].sum()*0.07812 + df['N.RA.TA.UE.Index1'].sum()*0.15624 + df['N.RA.TA.UE.Index2'].sum()*0.31248 + df['N.RA.TA.UE.Index3'].sum()*0.54684 + df['N.RA.TA.UE.Index4'].sum()*1.01556 + df['N.RA.TA.UE.Index5'].sum()*1.79676 + df['N.RA.TA.UE.Index6'].sum()*3.35916 + df['N.RA.TA.UE.Index7'].sum()*7.26516 + df['N.RA.TA.UE.Index8'].sum()*15.07716 + df['N.RA.TA.UE.Index9'].sum()*30.70116 + df['N.RA.TA.UE.Index10'].sum()*58.04316 + df['N.RA.TA.UE.Index11'].sum()*101.00916 + df['N.RA.TA.UE.Index12'].sum()*150.22476, df['N.RA.TA.UE.Index0'].sum() + df['N.RA.TA.UE.Index1'].sum() + df['N.RA.TA.UE.Index2'].sum() + df['N.RA.TA.UE.Index3'].sum() + df['N.RA.TA.UE.Index4'].sum() + df['N.RA.TA.UE.Index5'].sum() + df['N.RA.TA.UE.Index6'].sum() + df['N.RA.TA.UE.Index7'].sum() + df['N.RA.TA.UE.Index8'].sum() + df['N.RA.TA.UE.Index9'].sum() + df['N.RA.TA.UE.Index10'].sum() + df['N.RA.TA.UE.Index11'].sum() + df['N.RA.TA.UE.Index12'].sum())",
+    "chart_type": "line"
+  },
+  "PDSCH Scheduling MCS": {
+    "formula": "SAFE_DIV(0*df['N.ChMeas.PDSCH.MCS.0'].sum() + 1*df['N.ChMeas.PDSCH.MCS.1'].sum() + 2*df['N.ChMeas.PDSCH.MCS.2'].sum() + 3*df['N.ChMeas.PDSCH.MCS.3'].sum() + 4*df['N.ChMeas.PDSCH.MCS.4'].sum() + 5*df['N.ChMeas.PDSCH.MCS.5'].sum() + 6*df['N.ChMeas.PDSCH.MCS.6'].sum() + 7*df['N.ChMeas.PDSCH.MCS.7'].sum() + 8*df['N.ChMeas.PDSCH.MCS.8'].sum() + 9*df['N.ChMeas.PDSCH.MCS.9'].sum() + 10*df['N.ChMeas.PDSCH.MCS.10'].sum() + 11*df['N.ChMeas.PDSCH.MCS.11'].sum() + 12*df['N.ChMeas.PDSCH.MCS.12'].sum() + 13*df['N.ChMeas.PDSCH.MCS.13'].sum() + 14*df['N.ChMeas.PDSCH.MCS.14'].sum() + 15*df['N.ChMeas.PDSCH.MCS.15'].sum() + 16*df['N.ChMeas.PDSCH.MCS.16'].sum() + 17*df['N.ChMeas.PDSCH.MCS.17'].sum() + 18*df['N.ChMeas.PDSCH.MCS.18'].sum() + 19*df['N.ChMeas.PDSCH.MCS.19'].sum() + 20*df['N.ChMeas.PDSCH.MCS.20'].sum() + 21*df['N.ChMeas.PDSCH.MCS.21'].sum() + 22*df['N.ChMeas.PDSCH.MCS.22'].sum() + 23*df['N.ChMeas.PDSCH.MCS.23'].sum() + 24*df['N.ChMeas.PDSCH.MCS.24'].sum() + 25*df['N.ChMeas.PDSCH.MCS.25'].sum() + 26*df['N.ChMeas.PDSCH.MCS.26'].sum() + 27*df['N.ChMeas.PDSCH.MCS.27'].sum() + 28*df['N.ChMeas.PDSCH.MCS.28'].sum(), df['N.ChMeas.PDSCH.MCS.0'].sum() + df['N.ChMeas.PDSCH.MCS.1'].sum() + df['N.ChMeas.PDSCH.MCS.2'].sum() + df['N.ChMeas.PDSCH.MCS.3'].sum() + df['N.ChMeas.PDSCH.MCS.4'].sum() + df['N.ChMeas.PDSCH.MCS.5'].sum() + df['N.ChMeas.PDSCH.MCS.6'].sum() + df['N.ChMeas.PDSCH.MCS.7'].sum() + df['N.ChMeas.PDSCH.MCS.8'].sum() + df['N.ChMeas.PDSCH.MCS.9'].sum() + df['N.ChMeas.PDSCH.MCS.10'].sum() + df['N.ChMeas.PDSCH.MCS.11'].sum() + df['N.ChMeas.PDSCH.MCS.12'].sum() + df['N.ChMeas.PDSCH.MCS.13'].sum() + df['N.ChMeas.PDSCH.MCS.14'].sum() + df['N.ChMeas.PDSCH.MCS.15'].sum() + df['N.ChMeas.PDSCH.MCS.16'].sum() + df['N.ChMeas.PDSCH.MCS.17'].sum() + df['N.ChMeas.PDSCH.MCS.18'].sum() + df['N.ChMeas.PDSCH.MCS.19'].sum() + df['N.ChMeas.PDSCH.MCS.20'].sum() + df['N.ChMeas.PDSCH.MCS.21'].sum() + df['N.ChMeas.PDSCH.MCS.22'].sum() + df['N.ChMeas.PDSCH.MCS.23'].sum() + df['N.ChMeas.PDSCH.MCS.24'].sum() + df['N.ChMeas.PDSCH.MCS.25'].sum() + df['N.ChMeas.PDSCH.MCS.26'].sum() + df['N.ChMeas.PDSCH.MCS.27'].sum() + df['N.ChMeas.PDSCH.MCS.28'].sum())",
+    "chart_type": "line"
+  },
+  "PUSCH Scheduling MCS": {
+    "formula": "SAFE_DIV(0*df['N.ChMeas.PUSCH.MCS.0'].sum() + 1*df['N.ChMeas.PUSCH.MCS.1'].sum() + 2*df['N.ChMeas.PUSCH.MCS.2'].sum() + 3*df['N.ChMeas.PUSCH.MCS.3'].sum() + 4*df['N.ChMeas.PUSCH.MCS.4'].sum() + 5*df['N.ChMeas.PUSCH.MCS.5'].sum() + 6*df['N.ChMeas.PUSCH.MCS.6'].sum() + 7*df['N.ChMeas.PUSCH.MCS.7'].sum() + 8*df['N.ChMeas.PUSCH.MCS.8'].sum() + 9*df['N.ChMeas.PUSCH.MCS.9'].sum() + 10*df['N.ChMeas.PUSCH.MCS.10'].sum() + 11*df['N.ChMeas.PUSCH.MCS.11'].sum() + 12*df['N.ChMeas.PUSCH.MCS.12'].sum() + 13*df['N.ChMeas.PUSCH.MCS.13'].sum() + 14*df['N.ChMeas.PUSCH.MCS.14'].sum() + 15*df['N.ChMeas.PUSCH.MCS.15'].sum() + 16*df['N.ChMeas.PUSCH.MCS.16'].sum() + 17*df['N.ChMeas.PUSCH.MCS.17'].sum() + 18*df['N.ChMeas.PUSCH.MCS.18'].sum() + 19*df['N.ChMeas.PUSCH.MCS.19'].sum() + 20*df['N.ChMeas.PUSCH.MCS.20'].sum() + 21*df['N.ChMeas.PUSCH.MCS.21'].sum() + 22*df['N.ChMeas.PUSCH.MCS.22'].sum() + 23*df['N.ChMeas.PUSCH.MCS.23'].sum() + 24*df['N.ChMeas.PUSCH.MCS.24'].sum() + 25*df['N.ChMeas.PUSCH.MCS.25'].sum() + 26*df['N.ChMeas.PUSCH.MCS.26'].sum() + 27*df['N.ChMeas.PUSCH.MCS.27'].sum() + 28*df['N.ChMeas.PUSCH.MCS.28'].sum(), df['N.ChMeas.PUSCH.MCS.0'].sum() + df['N.ChMeas.PUSCH.MCS.1'].sum() + df['N.ChMeas.PUSCH.MCS.2'].sum() + df['N.ChMeas.PUSCH.MCS.3'].sum() + df['N.ChMeas.PUSCH.MCS.4'].sum() + df['N.ChMeas.PUSCH.MCS.5'].sum() + df['N.ChMeas.PUSCH.MCS.6'].sum() + df['N.ChMeas.PUSCH.MCS.7'].sum() + df['N.ChMeas.PUSCH.MCS.8'].sum() + df['N.ChMeas.PUSCH.MCS.9'].sum() + df['N.ChMeas.PUSCH.MCS.10'].sum() + df['N.ChMeas.PUSCH.MCS.11'].sum() + df['N.ChMeas.PUSCH.MCS.12'].sum() + df['N.ChMeas.PUSCH.MCS.13'].sum() + df['N.ChMeas.PUSCH.MCS.14'].sum() + df['N.ChMeas.PUSCH.MCS.15'].sum() + df['N.ChMeas.PUSCH.MCS.16'].sum() + df['N.ChMeas.PUSCH.MCS.17'].sum() + df['N.ChMeas.PUSCH.MCS.18'].sum() + df['N.ChMeas.PUSCH.MCS.19'].sum() + df['N.ChMeas.PUSCH.MCS.20'].sum() + df['N.ChMeas.PUSCH.MCS.21'].sum() + df['N.ChMeas.PUSCH.MCS.22'].sum() + df['N.ChMeas.PUSCH.MCS.23'].sum() + df['N.ChMeas.PUSCH.MCS.24'].sum() + df['N.ChMeas.PUSCH.MCS.25'].sum() + df['N.ChMeas.PUSCH.MCS.26'].sum() + df['N.ChMeas.PUSCH.MCS.27'].sum() + df['N.ChMeas.PUSCH.MCS.28'].sum())",
+    "chart_type": "line"
+  },
+  "RACH Efficiency (%)": {
+    "formula": "SAFE_DIV(df['N.RA.Contention.Resolution.Succ'].sum() + df['N.RA.Dedicated.Msg3'].sum(), df['N.RA.Contention.Att'].sum() + df['N.RA.Dedicated.Att'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "RLC Packet Delay (ms)": {
+    "formula": "SAFE_DIV(df['N.QoS.DL.PktDelaygNBDU.Time(microsecond)'].sum() / 1000, df['N.QoS.DL.PktDelaygNBDU.Num(packet)'].sum())",
+    "chart_type": "line"
+  },
+  "RRC Connected Edge User": {
+    "formula": "df['N.User.RRCConn.Active.UL.Edge.Avg'].sum()",
+    "chart_type": "line"
+  },
+  "RRC Setup Success Rate (CU)": {
+    "formula": "SAFE_DIV(df['N.RRC.SetupReq.Succ'].sum(), df['N.RRC.SetupReq.Att'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "Rank1 Rate of DL TB": {
+    "formula": "SAFE_DIV(df['N.PDSCH.NbrTbDl.Rank1'].sum(), df['N.DL.SCH.QPSK.TB'].sum() + df['N.DL.SCH.16QAM.TB'].sum() + df['N.DL.SCH.64QAM.TB'].sum() + df['N.DL.SCH.256QAM.TB'].sum() + df['N.DL.SCH.QPSK.TB.Retrans'].sum() + df['N.DL.SCH.16QAM.TB.Retrans'].sum() + df['N.DL.SCH.64QAM.TB.Retrans'].sum() + df['N.DL.SCH.256QAM.TB.Retrans'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "Rank2 Rate of DL TB": {
+    "formula": "SAFE_DIV(df['N.PDSCH.NbrTbDl.Rank2'].sum(), df['N.DL.SCH.QPSK.TB'].sum() + df['N.DL.SCH.16QAM.TB'].sum() + df['N.DL.SCH.64QAM.TB'].sum() + df['N.DL.SCH.256QAM.TB'].sum() + df['N.DL.SCH.QPSK.TB.Retrans'].sum() + df['N.DL.SCH.16QAM.TB.Retrans'].sum() + df['N.DL.SCH.64QAM.TB.Retrans'].sum() + df['N.DL.SCH.256QAM.TB.Retrans'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "Rank3 Rate of DL TB": {
+    "formula": "SAFE_DIV(df['N.PDSCH.NbrTbDl.Rank3'].sum(), df['N.DL.SCH.QPSK.TB'].sum() + df['N.DL.SCH.16QAM.TB'].sum() + df['N.DL.SCH.64QAM.TB'].sum() + df['N.DL.SCH.256QAM.TB'].sum() + df['N.DL.SCH.QPSK.TB.Retrans'].sum() + df['N.DL.SCH.16QAM.TB.Retrans'].sum() + df['N.DL.SCH.64QAM.TB.Retrans'].sum() + df['N.DL.SCH.256QAM.TB.Retrans'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "Rank4 Rate of DL TB": {
+    "formula": "SAFE_DIV(df['N.PDSCH.NbrTbDl.Rank4'].sum(), df['N.DL.SCH.QPSK.TB'].sum() + df['N.DL.SCH.16QAM.TB'].sum() + df['N.DL.SCH.64QAM.TB'].sum() + df['N.DL.SCH.256QAM.TB'].sum() + df['N.DL.SCH.QPSK.TB.Retrans'].sum() + df['N.DL.SCH.16QAM.TB.Retrans'].sum() + df['N.DL.SCH.64QAM.TB.Retrans'].sum() + df['N.DL.SCH.256QAM.TB.Retrans'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "SA Average User": {
+    "formula": "df['N.User.RRCConn.Avg'].sum() - df['N.User.NsaDc.PSCell.Avg'].sum()",
+    "chart_type": "line"
+  },
+  "SA Max User": {
+    "formula": "df['N.User.RRCConn.Max'].sum()",
+    "chart_type": "line"
+  },
+  "SgNB-Trig Drop Rate (%)": {
+    "formula": "SAFE_DIV(df['N.NsaDc.SgNB.AbnormRel'].sum(), df['N.NsaDc.SgNB.Rel'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "TA Average": {
+    "formula": "SAFE_DIV(df['N.RA.TA.UE.Index0'].sum()*0 + df['N.RA.TA.UE.Index1'].sum()*1 + df['N.RA.TA.UE.Index2'].sum()*2 + df['N.RA.TA.UE.Index3'].sum()*3 + df['N.RA.TA.UE.Index4'].sum()*4 + df['N.RA.TA.UE.Index5'].sum()*5 + df['N.RA.TA.UE.Index6'].sum()*6 + df['N.RA.TA.UE.Index7'].sum()*7 + df['N.RA.TA.UE.Index8'].sum()*8 + df['N.RA.TA.UE.Index9'].sum()*9 + df['N.RA.TA.UE.Index10'].sum()*10 + df['N.RA.TA.UE.Index11'].sum()*11 + df['N.RA.TA.UE.Index12'].sum()*12, df['N.RA.TA.UE.Index0'].sum() + df['N.RA.TA.UE.Index1'].sum() + df['N.RA.TA.UE.Index2'].sum() + df['N.RA.TA.UE.Index3'].sum() + df['N.RA.TA.UE.Index4'].sum() + df['N.RA.TA.UE.Index5'].sum() + df['N.RA.TA.UE.Index6'].sum() + df['N.RA.TA.UE.Index7'].sum() + df['N.RA.TA.UE.Index8'].sum() + df['N.RA.TA.UE.Index9'].sum() + df['N.RA.TA.UE.Index10'].sum() + df['N.RA.TA.UE.Index11'].sum() + df['N.RA.TA.UE.Index12'].sum())",
+    "chart_type": "line"
+  },
+  "Taxa Dados DL (Mbps)": {
+    "formula": "SAFE_DIV(df['N.ThpVol.DL(kbit)'].sum() - df['N.ThpVol.DL.LastSlot(kbit)'].sum(), df['N.ThpTime.DL.RmvLastSlot(microsecond)'].sum(), multiplier=1000)",
+    "chart_type": "line"
+  },
+  "Taxa Dados DL BWP2 (Mbps)": {
+    "formula": "(lambda vol_diff, time_diff: (vol_diff / time_diff) * 1000 if time_diff else np.nan)((df['N.ThpVol.DL(kbit)'].sum() - df['N.ThpVol.DL.LastSlot(kbit)'].sum()) - (df['N.BWP.ThpVol.DL(kbit)'].sum() - df['N.BWP.ThpVol.DL.LastSlot(kbit)'].sum()), df['N.ThpTime.DL.RmvLastSlot(microsecond)'].sum() - df['N.BWP.ThpTime.DL.RmvLastSlot(microsecond)'].sum())",
+    "chart_type": "line"
+  },
+  "Taxa Dados DL sem BWP2 (Mbps)": {
+    "formula": "SAFE_DIV(df['N.BWP.ThpVol.DL(kbit)'].sum() - df['N.BWP.ThpVol.DL.LastSlot(kbit)'].sum(), df['N.BWP.ThpTime.DL.RmvLastSlot(microsecond)'].sum(), multiplier=1000)",
+    "chart_type": "line"
+  },
+  "Taxa Dados UL (Mbps)": {
+    "formula": "SAFE_DIV(df['N.ThpVol.UL(kbit)'].sum() - df['N.ThpVol.UE.UL.SmallPkt(kbit)'].sum(), df['N.ThpTime.UE.UL.RmvSmallPkt(microsecond)'].sum(), multiplier=1000)",
+    "chart_type": "line"
+  },
+  "UL CCE Allocation SR": {
+    "formula": "SAFE_DIV(df['N.CCE.UL.AggLvl16Num'].sum() + df['N.CCE.UL.AggLvl1Num'].sum() + df['N.CCE.UL.AggLvl2Num'].sum() + df['N.CCE.UL.AggLvl4Num'].sum() + df['N.CCE.UL.AggLvl8Num'].sum(), df['N.CCE.UL.AllocReq.Num'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "UL CCE Equivalent Usage (%)": {
+    "formula": "SAFE_DIV(df['N.CCE.ULDCI.Used.Equivalent'].sum(), df['N.CCE.ULDCI.Avail.Equivalent'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "UL Data Rate above 70Mbps": {
+    "formula": "SAFE_DIV(df['N.Thp.UL.Samp.Index11'].sum() + df['N.Thp.UL.Samp.Index12'].sum() + df['N.Thp.UL.Samp.Index13'].sum() + df['N.Thp.UL.Samp.Index14'].sum(), df['N.Thp.UL.Samp.Index0'].sum() + df['N.Thp.UL.Samp.Index1'].sum() + df['N.Thp.UL.Samp.Index2'].sum() + df['N.Thp.UL.Samp.Index3'].sum() + df['N.Thp.UL.Samp.Index4'].sum() + df['N.Thp.UL.Samp.Index5'].sum() + df['N.Thp.UL.Samp.Index6'].sum() + df['N.Thp.UL.Samp.Index7'].sum() + df['N.Thp.UL.Samp.Index8'].sum() + df['N.Thp.UL.Samp.Index9'].sum() + df['N.Thp.UL.Samp.Index10'].sum() + df['N.Thp.UL.Samp.Index11'].sum() + df['N.Thp.UL.Samp.Index12'].sum() + df['N.Thp.UL.Samp.Index13'].sum() + df['N.Thp.UL.Samp.Index14'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "UL Data Rate below 20Mbps": {
+    "formula": "SAFE_DIV(df['N.Thp.UL.Samp.Index0'].sum() + df['N.Thp.UL.Samp.Index1'].sum() + df['N.Thp.UL.Samp.Index2'].sum() + df['N.Thp.UL.Samp.Index3'].sum() + df['N.Thp.UL.Samp.Index4'].sum() + df['N.Thp.UL.Samp.Index5'].sum() + df['N.Thp.UL.Samp.Index6'].sum(), df['N.Thp.UL.Samp.Index0'].sum() + df['N.Thp.UL.Samp.Index1'].sum() + df['N.Thp.UL.Samp.Index2'].sum() + df['N.Thp.UL.Samp.Index3'].sum() + df['N.Thp.UL.Samp.Index4'].sum() + df['N.Thp.UL.Samp.Index5'].sum() + df['N.Thp.UL.Samp.Index6'].sum() + df['N.Thp.UL.Samp.Index7'].sum() + df['N.Thp.UL.Samp.Index8'].sum() + df['N.Thp.UL.Samp.Index9'].sum() + df['N.Thp.UL.Samp.Index10'].sum() + df['N.Thp.UL.Samp.Index11'].sum() + df['N.Thp.UL.Samp.Index12'].sum() + df['N.Thp.UL.Samp.Index13'].sum() + df['N.Thp.UL.Samp.Index14'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "UL Data Rate between 20 a 70": {
+    "formula": "SAFE_DIV(df['N.Thp.UL.Samp.Index7'].sum() + df['N.Thp.UL.Samp.Index8'].sum() + df['N.Thp.UL.Samp.Index9'].sum() + df['N.Thp.UL.Samp.Index10'].sum(), df['N.Thp.UL.Samp.Index0'].sum() + df['N.Thp.UL.Samp.Index1'].sum() + df['N.Thp.UL.Samp.Index2'].sum() + df['N.Thp.UL.Samp.Index3'].sum() + df['N.Thp.UL.Samp.Index4'].sum() + df['N.Thp.UL.Samp.Index5'].sum() + df['N.Thp.UL.Samp.Index6'].sum() + df['N.Thp.UL.Samp.Index7'].sum() + df['N.Thp.UL.Samp.Index8'].sum() + df['N.Thp.UL.Samp.Index9'].sum() + df['N.Thp.UL.Samp.Index10'].sum() + df['N.Thp.UL.Samp.Index11'].sum() + df['N.Thp.UL.Samp.Index12'].sum() + df['N.Thp.UL.Samp.Index13'].sum() + df['N.Thp.UL.Samp.Index14'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "UL Edge User Data Rate (Mbps)": {
+    "formula": "SAFE_DIV(1000 * (df['N.ThpVol.UL.Edge(kbit)'].sum() - df['N.ThpVol.UE.UL.SmallPkt.Edge(kbit)'].sum()), df['N.ThpTime.UE.UL.RmvSmallPkt.Edge(microsecond)'].sum())",
+    "chart_type": "line"
+  },
+  "UL IBLER (%)": {
+    "formula": "SAFE_DIV(df['N.UL.SCH.HalfPiBPSK.ErrTB.Rbler'].sum() + df['N.UL.SCH.QPSK.ErrTB.Rbler'].sum() + df['N.UL.SCH.16QAM.ErrTB.Rbler'].sum() + df['N.UL.SCH.64QAM.ErrTB.Rbler'].sum() + df['N.UL.SCH.256QAM.ErrTB.Rbler'].sum(), df['N.UL.SCH.HalfPiBPSK.TB'].sum() + df['N.UL.SCH.QPSK.TB'].sum() + df['N.UL.SCH.16QAM.TB'].sum() + df['N.UL.SCH.64QAM.TB'].sum() + df['N.UL.SCH.256QAM.TB'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "UL PRB Usage Rate (%)": {
+    "formula": "SAFE_DIV(df['N.PRB.UL.Used.Avg'].sum(), df['N.PRB.UL.Actual.Avail.Avg'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "UL PRB Usage Rate DSS (%)": {
+    "formula": "SAFE_DIV(df['N.PRB.UL.Actual.Avail.Avg'].sum(), df['N.PRB.UL.Avail.Avg'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "UL Packet Loss Rate (PDCP)": {
+    "formula": "SAFE_DIV(df['N.PDCP.UL.TrfSDU.RxPacket.Loss(packet)'].sum(), df['N.PDCP.UL.TrfPDU.RxPackets(packet)'].sum() + df['N.PDCP.UL.TrfSDU.RxPacket.Loss(packet)'].sum())",
+    "chart_type": "line"
+  },
+  "UL RBLER (%)": {
+    "formula": "SAFE_DIV(df['N.UL.SCH.HalfPiBPSK.ErrTB.Rbler'].sum() + df['N.UL.SCH.QPSK.ErrTB.Rbler'].sum() + df['N.UL.SCH.16QAM.ErrTB.Rbler'].sum() + df['N.UL.SCH.64QAM.ErrTB.Rbler'].sum() + df['N.UL.SCH.256QAM.ErrTB.Rbler'].sum(), df['N.UL.SCH.HalfPiBPSK.TB'].sum() + df['N.UL.SCH.QPSK.TB'].sum() + df['N.UL.SCH.16QAM.TB'].sum() + df['N.UL.SCH.64QAM.TB'].sum() + df['N.UL.SCH.256QAM.TB'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "UL Retrans (%)": {
+    "formula": "SAFE_DIV(df['N.UL.SCH.QPSK.TB.Retrans'].sum() + df['N.UL.SCH.16QAM.TB.Retrans'].sum() + df['N.UL.SCH.64QAM.TB.Retrans'].sum() + df['N.UL.SCH.256QAM.TB.Retrans'].sum() + df['N.UL.SCH.HalfPiBPSK.TB.Retrans'].sum(), df['N.UL.SCH.QPSK.TB'].sum() + df['N.UL.SCH.16QAM.TB'].sum() + df['N.UL.SCH.64QAM.TB'].sum() + df['N.UL.SCH.256QAM.TB'].sum() + df['N.UL.SCH.HalfPiBPSK.TB'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "UL Scheduling times": {
+    "formula": "df['N.User.Schedule.Ul.Sum'].sum()",
+    "chart_type": "line"
+  },
+  "UL Spectrum Effectiveness (bit/hz)": {
+    "formula": "SAFE_DIV(100 * df['N.ThpVol.UL(kbit)'].sum(), (df['N.UL.PUSCH.Tti.Num'].mean()) * df['N.PRB.UL.DrbUsed.Avg'].sum() * 18)",
+    "chart_type": "line"
+  },
+  "UL Spectrum Effectiveness SCS15": {
+    "formula": "SAFE_DIV(1000 * df['N.ThpVol.UL(kbit)'].sum(), (df['N.UL.PUSCH.Tti.Num'].sum() / 1000) * df['N.PRB.UL.DrbUsed.Avg'].sum() * 180000)",
+    "chart_type": "line"
+  },
+  "UL Spectrum Effectiveness SCS30": {
+    "formula": "SAFE_DIV(1000 * df['N.ThpVol.UL(kbit)'].sum(), (df['N.UL.PUSCH.Tti.Num'].sum() / 2000) * df['N.PRB.UL.DrbUsed.Avg'].sum() * 360000)",
+    "chart_type": "line"
+  },
+  "UL Volume (GB)": {
+    "formula": "df['N.ThpVol.UL(kbit)'].sum() / 1_000_000",
+    "chart_type": "area"
+  },
+  "Uplink DCI allocation success rate": {
+    "formula": "SAFE_DIV(df['N.CCE.UL.AggLvl1Num'].sum() + df['N.CCE.UL.AggLvl2Num'].sum() + df['N.CCE.UL.AggLvl4Num'].sum() + df['N.CCE.UL.AggLvl8Num'].sum() + df['N.CCE.UL.AggLvl16Num'].sum(), df['N.CCE.UL.AllocReq.Num'].sum(), multiplier=100)",
+    "chart_type": "line"
+  },
+  "User Downlink Average Throughput (DU)": {
+    "formula": "SAFE_DIV(df['N.ThpVol.DL(kbit)'].sum() - df['N.ThpVol.DL.LastSlot(kbit)'].sum(), df['N.ThpTime.DL.RmvLastSlot(microsecond)'].sum())",
+    "chart_type": "line"
+  },
+  "User Uplink Average Throughput (DU)": {
+    "formula": "SAFE_DIV(df['N.ThpVol.UL(kbit)'].sum() - df['N.ThpVol.UE.UL.SmallPkt(kbit)'].sum(), df['N.ThpTime.UE.UL.RmvSmallPkt(microsecond)'].sum())",
+    "chart_type": "line"
+  },
+  "numerador TaxaDL 5G": {
+    "formula": "df['N.ThpVol.DL(kbit)'].sum() - df['N.ThpVol.DL.LastSlot(kbit)'].sum()",
+    "chart_type": "line"
+  }
+}
